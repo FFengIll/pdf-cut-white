@@ -71,6 +71,26 @@ def mine_area(filename):
         for item in layout:
             box = item.bbox
             boxlist.append(box)
+            
+            if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
+                # text
+                print 'text',item
+                print item.get_text()
+            elif isinstance(item, LTImage):
+				print 'image:',item
+            elif isinstance(item, LTFigure):
+                print 'figure:',item
+            elif isinstance(item, LTAnno):
+                print 'anno:',item
+            elif isinstance(item, LTChar):
+                print 'char:',item
+            elif isinstance(item, LTLine):
+                print 'line:',item
+            elif isinstance(item, LTRect):
+                print 'rect:',item
+            elif isinstance(item, LTCurve):
+                print 'curve:',item
+
         pageboxlist.append(boxlist)
         # for x in layout:
         #     #如果x是水平文本对象的话
@@ -80,10 +100,8 @@ def mine_area(filename):
         #         if len(text) != 0:
         #             print text
 
-    print pageboxlist
     res=[]
     for boxlist in pageboxlist:
         tmp=get_max_box(boxlist)
         res.append(tmp)
-    print res
     return res
