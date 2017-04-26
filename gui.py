@@ -15,11 +15,13 @@ class Window(QtGui.QDialog):
         browse2Button = self.createButton("&Browse...", self.browse2)
         findButton = self.createButton("&Find PDF", self.find)
         actionButton = self.createButton("&Cut White", self.doAction)
+        allButton = self.createButton("&Select All", self.selectAll)
+        unallButton = self.createButton("&Unselect All", self.unselectAll)
 
         self.fileComboBox = self.createComboBox("*.pdf")
         self.textComboBox = self.createComboBox()
-        self.directoryComboBox = self.createComboBox()#(QtCore.QDir.currentPath())
-        self.directory2ComboBox = self.createComboBox()#(QtCore.QDir.currentPath())
+        self.directoryComboBox = self.createComboBox(QtCore.QDir.currentPath())
+        self.directory2ComboBox = self.createComboBox(QtCore.QDir.currentPath())
 
         fileLabel = QtGui.QLabel("Named:")
         directoryLabel = QtGui.QLabel("Input directory:")
@@ -32,6 +34,11 @@ class Window(QtGui.QDialog):
         buttonsLayout.addStretch()
         buttonsLayout.addWidget(findButton)
         buttonsLayout.addWidget(actionButton)
+
+        checkButtonLayout = QtGui.QHBoxLayout()
+        checkButtonLayout.addStretch()
+        checkButtonLayout.addWidget(allButton)
+        checkButtonLayout.addWidget(unallButton)
 
         mainLayout = QtGui.QGridLayout()
         mainLayout.addWidget(fileLabel, 0, 0)
@@ -47,7 +54,8 @@ class Window(QtGui.QDialog):
 
         mainLayout.addWidget(self.filesTable, 4, 0, 1, 3)
         mainLayout.addWidget(self.filesFoundLabel, 5, 0, 1, 3)
-        mainLayout.addLayout(buttonsLayout, 6, 0, 1, 3)
+        mainLayout.addLayout(checkButtonLayout, 6, 0)
+        mainLayout.addLayout(buttonsLayout, 6, 1, 1, 2)
         self.setLayout(mainLayout)
 
         self.setWindowTitle("PDF Cut White")
@@ -80,6 +88,20 @@ class Window(QtGui.QDialog):
         if comboBox.findText(comboBox.currentText()) == -1:
             comboBox.addItem(comboBox.currentText())
 
+    def selectAll(self):
+        cnt = self.filesTable.rowCount()
+        for row in range(cnt):
+            checkitem = self.filesTable.item(row, 0)
+            if checkitem.checkState() == QtCore.Qt.Unchecked:
+                checkitem.setCheckState(QtCore.Qt.Checked)
+
+    def unselectAll(self):
+        cnt = self.filesTable.rowCount()
+        for row in range(cnt):
+            checkitem = self.filesTable.item(row, 0)
+            if checkitem.checkState() == QtCore.Qt.Checked:
+                checkitem.setCheckState(QtCore.Qt.Unchecked)
+
     def doAction(self):
         """
         do action to cut the white and output new pdf
@@ -87,16 +109,32 @@ class Window(QtGui.QDialog):
         indir = self.directoryComboBox.currentText()
         outdir = self.directory2ComboBox.currentText()
 
+        success=True
+        msg=""
         cnt = self.filesTable.rowCount()
         for row in range(cnt):
-            item = self.filesTable.item(row, 0)
+            checkitem = self.filesTable.item(row, 0)
+            if checkitem.checkState() == QtCore.Qt.Unchecked:
+                continue
+            item = self.filesTable.item(row, 1)
             name = item.text()
 
             #qstring to string
-            input = unicode(indir +"\\"+ name)
-            output = unicode(outdir +"\\"+ name)
+            input = unicode(indir + "\\" + name)
+            output = unicode(outdir + "\\" + name)
 
-            cutwhite.cut_white(input, output)
+            try:
+                cutwhite.cut_white(input, output)
+            except Exception,e:
+                print "error while cut white"
+                msg=name
+                success=False
+                break
+        if(success):
+            QtGui.QMessageBox.information(self,"Info","Completed!",QtGui.QMessageBox.Ok)
+        else:
+            QtGui.QMessageBox.warning(self,"Error","Error while process %s" %(msg),QtGui.QMessageBox.Ok)
+
 
         # cutwhite.batch_action(indir,outdir)
 
@@ -159,10 +197,17 @@ class Window(QtGui.QDialog):
                                       QtCore.Qt.AlignRight)
             sizeItem.setFlags(sizeItem.flags() ^ QtCore.Qt.ItemIsEditable)
 
+            # a check item to choose the spec files
+            checkItem = QtGui.QTableWidgetItem()
+            checkItem.setCheckState(QtCore.Qt.Checked)
+            checkItem.setTextAlignment(QtCore.Qt.AlignVCenter |
+                                       QtCore.Qt.AlignHCenter)
+
             row = self.filesTable.rowCount()
             self.filesTable.insertRow(row)
-            self.filesTable.setItem(row, 0, fileNameItem)
-            self.filesTable.setItem(row, 1, sizeItem)
+            self.filesTable.setItem(row, 0, checkItem)
+            self.filesTable.setItem(row, 1, fileNameItem)
+            self.filesTable.setItem(row, 2, sizeItem)
 
         self.filesFoundLabel.setText(
             "%d file(s) found (Double click on a file to open it)" %
@@ -182,13 +227,14 @@ class Window(QtGui.QDialog):
         return comboBox
 
     def createFilesTable(self):
-        self.filesTable = QtGui.QTableWidget(0, 2)
+        self.filesTable = QtGui.QTableWidget(0, 3)
         self.filesTable.setSelectionBehavior(
             QtGui.QAbstractItemView.SelectRows)
 
-        self.filesTable.setHorizontalHeaderLabels(("File Name", "Size"))
+        self.filesTable.setHorizontalHeaderLabels(("Choose", "File Name",
+                                                   "Size"))
         self.filesTable.horizontalHeader().setResizeMode(
-            0, QtGui.QHeaderView.Stretch)
+            1, QtGui.QHeaderView.Stretch)
         self.filesTable.verticalHeader().hide()
         self.filesTable.setShowGrid(False)
 

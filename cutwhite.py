@@ -4,7 +4,6 @@ from PyPDF2 import PdfFileWriter, PdfFileReader
 import miner
 import os, sys
 
-
 def cut_box(box, res):
     """
     cut the box by setting new position (relative position)
@@ -18,6 +17,7 @@ def cut_box(box, res):
     print "origin:", box
     box.lowerLeft = (bx + x1, by + y1)
     box.upperRight = (bx + x2, by + y2)
+
 def cut_white(inputname, outputname='output.pdf'):
     """
     cut the white slide of the input pdf file, and output a new pdf file
@@ -89,8 +89,7 @@ def batch_action(indir, outdir):
             os.makedirs(dir)
         cut_white(f, path)
 
-
-if __name__ == "__main__":
+def run_tests():
     inputfile = './input/input.pdf'
     inputfile = 'F:\\pdf\\dist\\concolic\\concolic2.pdf'
     inputfile = 'F:\\pdf\\dist\\concolic\\output\\output.pdf'
@@ -104,3 +103,6 @@ if __name__ == "__main__":
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     batch_action(indir, outdir)
+
+if __name__ == "__main__":
+    run_tests()
