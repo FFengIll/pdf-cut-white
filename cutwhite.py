@@ -2,107 +2,143 @@ import PyPDF2 as pdflib
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
 import miner
-import os, sys
+import os
+import sys
+import logging
 
-def cut_box(box, res):
+logging.getLogger().setLevel(logging.INFO)
+
+sys.argv= "cutwhite.py -i output/input.pdf -o test.pdf".split(' ')
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", help="input file", action="store",
+                    default='', type=str, dest="input")
+parser.add_argument("-o", help="output file", action="store",
+                    default='', type=str, dest="output")
+parser.add_argument("-id", help="input directory", action="store",
+                    default='', type=str, dest="indir")
+parser.add_argument("-od", help="output directory", action="store",
+                    default='', type=str, dest="outdir")
+parser.add_argument("-t", "--test", help="run test",
+                    action="store_true", dest="test")
+# parser.add_argument(nargs=argparse.REMAINDER, dest="value")
+args = parser.parse_args()
+
+
+def fix_box(page, fix):
     """
     cut the box by setting new position (relative position)
     """
-    (x1, y1, x2, y2) = res
+    box = page.mediaBox
+    logging.info(page.trimBox)
+    logging.info(page.artBox)
+    logging.info(page.cropBox)
+    logging.info(page.bleedBox)
 
-    #must translate relative position to absolute position
+
+
+    # must translate relative position to absolute position
+    # box position
     bx, by = box.getLowerLeft()
-    bx=float(bx);by=float(by)
+    bx = float(bx)
+    by = float(by)
 
-    print "origin:", box
-    box.lowerLeft = (bx + x1, by + y1)
-    box.upperRight = (bx + x2, by + y2)
+    # given position to fix
+    (x1, y1, x2, y2) = fix
+    x1, y1, x2, y2 = x1+bx, y1+by, x2+bx, y2+by
 
-def cut_white(inputname, outputname='output.pdf'):
+    logging.info("origin box: {}".format(box))
+    # fixed position
+    fx1 = x1
+    fx2 = x2
+    fy1 = y1
+    fy2 = y2
+
+    box.lowerLeft = (fx1, fy1)
+    box.upperRight = (fx2, fy2)
+
+    logging.info("fixed box: {}".format(box))
+
+
+def cut_white(inpath, outpath='output.pdf'):
     """
-    cut the white slide of the input pdf file, and output a new pdf file
+    cut the white slide of the input pdf file, and output a new pdf file.
     """
-    indata = PdfFileReader(file(inputname, 'rb'))
-    outdata = PdfFileWriter()
+    pages = []
+    with open(inpath, 'rb') as infd, open(outpath, 'wb') as outfd:
+        outpdf = PdfFileWriter()
+        inpdf = PdfFileReader(infd)
 
-    #get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
-    pageboxlist = miner.mine_area(inputname)
+        # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
+        pageboxlist = miner.mine_area(inpath)
 
-    num = indata.getNumPages()
-    for i in range(num):
-        scale = pageboxlist[i]
-        page = indata.getPage(i)
-        print scale
+        num = inpdf.getNumPages()
+        for i in range(num):
+            # scale is the max box of the page
+            scale = pageboxlist[i]
+            page = inpdf.getPage(i)
 
-        cut_box(page.mediaBox, scale)
-        # cut_box(page.trimBox,scale)
-        # cut_box(page.artBox,scale)
-        # cut_box(page.cropBox,scale)
-        # cut_box(page.bleedBox,scale)
-        outdata.addPage(page)
+            logging.info(scale)
 
-    output = file(outputname, 'wb')
-    outdata.write(output)
-    output.close()
+            fix_box(page, scale)
+            outpdf.addPage(page)
+
+        outpdf.write(outfd)
 
 
-def scan_files(directory, prefix=None, postfix=None, sub=False):
+def scan_files(folder, prefix=None, postfix=None, sub=False):
     """
     scan files under the dir with spec prefix and postfix
     """
-    files_list = []
+    files = []
 
-    for root, dirs, files in os.walk(directory):
-        # print root, dirs, files
-        for f in files:
+    for item in os.listdir(folder):
+        path = os.path.join(folder, item)
+        if os.path.isfile(path):
             if postfix:
-                if f.endswith(postfix):
-                    files_list.append(os.path.join(root, f))
-            elif prefix:
-                if f.startswith(prefix):
-                    files_list.append(os.path.join(root, f))
-            else:
-                files_list.append(os.path.join(root, f))
-        if not sub:
-            break
+                if item.endswith(postfix):
+                    files.append(item)
 
-    return files_list
+    return files
 
 
-def batch_action(indir, outdir):
+def batch(indir, outdir):
     files = scan_files(indir, postfix='pdf')
-    print files
+    logging.info(files)
 
-    for f in files:
-        name = f.replace(indir, '')
-        path = outdir + name
+    if not os.path.exists(indir):
+        os.mkdir(indir)
 
-        print f
-        print name
-        print path
+    for item in files:
+        inpath = os.path.join(indir, item)
+        outpath = os.path.join(outdir, item)
+        cut_white(inpath, outpath)
 
-        id = path.rfind('\\')
-        dir = path[:id]
-        print dir
 
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-        cut_white(f, path)
-
-def run_tests():
+def test_one():
     inputfile = './input/input.pdf'
-    inputfile = 'F:\\pdf\\dist\\concolic\\concolic2.pdf'
-    inputfile = 'F:\\pdf\\dist\\concolic\\output\\output.pdf'
     outputfile = './output/output.pdf'
-    outputfile = 'F:\\pdf\\dist\\concolic\\output\\output2.pdf'
     cut_white(inputfile, outputfile)
-    exit(0)
 
+
+def test_batch():
     outdir = './output'
     indir = './input'
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
-    batch_action(indir, outdir)
+    batch(indir, outdir)
+
+
+def run_tests():
+    test_one()
+    test_batch()
+
 
 if __name__ == "__main__":
-    run_tests()
+    if args.input and args.output:
+        cut_white(args.input, args.output)
+    elif args.indir and args.outdir:
+        batch(args.indir, args.outdir)
+    elif args.test:
+        run_tests()
+    else:
+        parser.print_help()
