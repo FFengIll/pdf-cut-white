@@ -8,8 +8,6 @@ import logging
 
 logging.getLogger().setLevel(logging.INFO)
 
-sys.argv= "cutwhite.py -i output/input.pdf -o test.pdf".split(' ')
-
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", help="input file", action="store",
@@ -65,6 +63,9 @@ def cut_white(inpath, outpath='output.pdf'):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
+    if inpath==outpath:
+        raise Exception('input and output can not be the same!')
+
     pages = []
     with open(inpath, 'rb') as infd, open(outpath, 'wb') as outfd:
         outpdf = PdfFileWriter()
@@ -104,6 +105,9 @@ def scan_files(folder, prefix=None, postfix=None, sub=False):
 
 
 def batch(indir, outdir):
+    if indir==outdir:
+        raise Exception('input and output can not be the same!')
+
     files = scan_files(indir, postfix='pdf')
     logging.info(files)
 
