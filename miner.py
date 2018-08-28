@@ -74,22 +74,22 @@ def mine_area(filename):
             
             if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
                 # text
-                print 'text',item
+                print('text{}'.format(item))
                 print item.get_text()
             elif isinstance(item, LTImage):
-				print 'image:',item
+				print('image:{}'.format(item))
             elif isinstance(item, LTFigure):
-                print 'figure:',item
+                print('figure:{}'.format(item))
             elif isinstance(item, LTAnno):
-                print 'anno:',item
+                print('anno:{}'.format(item))
             elif isinstance(item, LTChar):
-                print 'char:',item
+                print('char:{}'.format(item))
             elif isinstance(item, LTLine):
-                print 'line:',item
+                print('line:{}'.format(item))
             elif isinstance(item, LTRect):
-                print 'rect:',item
+                print('rect:{}'.format(item))
             elif isinstance(item, LTCurve):
-                print 'curve:',item
+                print('curve:{}'.format(item))
 
         pageboxlist.append(boxlist)
         # for x in layout:
