@@ -29,7 +29,12 @@ Recommend to use `command line tool` (not the GUI):
 * single file: `python cutwhite.py -i in.pdf -o out.pdf`
 * folder: `python cutwhite.py -id infolder -od outfolder`
 
-`dist/`下提供了一个`可执行GUI版本`（陈旧），但更推荐使用`命令行版本`
+If you wanna use the GUI (base on PySide2: official Qt for Python):
+* `pip install pyside2`
+* if success, run `python gui.py`
+* enjoy it~!
+
+推荐使用命令行版本（命令如上），若希望使用GUI版本，请确保能够成功安装PySide2（命令如上）：
 * 启用工具，选择输入文件夹和输出文件夹（必须使用不同的文件夹防止源文件覆盖）
 * 扫描pdf文件（GUI支持在列表中二次选择PDF）（注意：仅会扫描一级目录，而不会扫描子目录）
 * 确认无误后，点击完成PDF裁剪（仅选中的文件），并输出到输出文件夹下
@@ -53,6 +58,7 @@ Known limit:
 
 ## Misc
 ### Bug / Feature Missing
+* (added) GUI base on PySide2 (the official).
 * (fixed) failed for pdf which has been edited before - not fix the pos for the edited (pdfminer use relative pos).
 * (fixed) no CLI - argparse now.
 
@@ -61,8 +67,8 @@ Known limit:
 * pdfminer (scan elements)
 
 ### Optional
-* PyQT (GUI)
-* Pyinstaller (generate exe)
+* PySide2 (gui only)
+* Pyinstaller (generate exe only)
 
 ### Mention
 * No dependencies needed while use packaged exe version.

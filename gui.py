@@ -1,18 +1,24 @@
 #!/usr/bin/env python
+# encoding=utf-8
 '''
-this gui based on pyqt and used the example - findfiles.pyw as template.
+this gui based on PySide2 (QT for Python) and used the example - findfiles.pyw as template.
 '''
 
-from PyQt4 import QtCore, QtGui
+import sys
+import os
+import traceback
+
+from PySide2 import QtWidgets, QtCore, QtWidgets
+
 import cutwhite
 
 
-class Window(QtGui.QDialog):
-    def __init__(self, parent=None):
-        super(Window, self).__init__(parent)
+class Window(QtWidgets.QDialog):
+    def __init__(self):
+        super(Window, self).__init__()
 
-        browseButton = self.createButton("&Browse...", self.browse)
-        browse2Button = self.createButton("&Browse...", self.browse2)
+        browseButton = self.createButton("&Browse...", self.browseInDir)
+        browse2Button = self.createButton("&Browse...", self.browseOutDir)
         findButton = self.createButton("&Find PDF", self.find)
         actionButton = self.createButton("&Cut White", self.doAction)
         allButton = self.createButton("&Select All", self.selectAll)
@@ -21,26 +27,27 @@ class Window(QtGui.QDialog):
         self.fileComboBox = self.createComboBox("*.pdf")
         self.textComboBox = self.createComboBox()
         self.directoryComboBox = self.createComboBox(QtCore.QDir.currentPath())
-        self.directory2ComboBox = self.createComboBox(QtCore.QDir.currentPath())
+        self.directory2ComboBox = self.createComboBox(
+            os.path.join(QtCore.QDir.currentPath(), 'output'))
 
-        fileLabel = QtGui.QLabel("Named:")
-        directoryLabel = QtGui.QLabel("Input directory:")
-        directory2Label = QtGui.QLabel("Output directory:")
-        self.filesFoundLabel = QtGui.QLabel()
+        fileLabel = QtWidgets.QLabel("Named:")
+        directoryLabel = QtWidgets.QLabel("Input directory:")
+        directory2Label = QtWidgets.QLabel("Output directory:")
+        self.filesFoundLabel = QtWidgets.QLabel()
 
         self.createFilesTable()
 
-        buttonsLayout = QtGui.QHBoxLayout()
+        buttonsLayout = QtWidgets.QHBoxLayout()
         buttonsLayout.addStretch()
         buttonsLayout.addWidget(findButton)
         buttonsLayout.addWidget(actionButton)
 
-        checkButtonLayout = QtGui.QHBoxLayout()
+        checkButtonLayout = QtWidgets.QHBoxLayout()
         checkButtonLayout.addStretch()
         checkButtonLayout.addWidget(allButton)
         checkButtonLayout.addWidget(unallButton)
 
-        mainLayout = QtGui.QGridLayout()
+        mainLayout = QtWidgets.QGridLayout()
         mainLayout.addWidget(fileLabel, 0, 0)
         mainLayout.addWidget(self.fileComboBox, 0, 1, 1, 2)
 
@@ -59,10 +66,10 @@ class Window(QtGui.QDialog):
         self.setLayout(mainLayout)
 
         self.setWindowTitle("PDF Cut White")
-        self.resize(700, 300)
+        self.resize(700, 500)
 
-    def browse(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(
+    def browseInDir(self):
+        directory = QtWidgets.QFileDialog.getExistingDirectory(
             self, "Input Dir", QtCore.QDir.currentPath())
 
         if directory:
@@ -72,8 +79,8 @@ class Window(QtGui.QDialog):
             self.directoryComboBox.setCurrentIndex(
                 self.directoryComboBox.findText(directory))
 
-    def browse2(self):
-        directory = QtGui.QFileDialog.getExistingDirectory(
+    def browseOutDir(self):
+        directory = QtWidgets.QFileDialog.getExistingDirectory(
             self, "Output Dir", QtCore.QDir.currentPath())
 
         if directory:
@@ -88,19 +95,18 @@ class Window(QtGui.QDialog):
         if comboBox.findText(comboBox.currentText()) == -1:
             comboBox.addItem(comboBox.currentText())
 
-    def selectAll(self):
+    def setCheck(self, flag):
         cnt = self.filesTable.rowCount()
         for row in range(cnt):
             checkitem = self.filesTable.item(row, 0)
             if checkitem.checkState() == QtCore.Qt.Unchecked:
-                checkitem.setCheckState(QtCore.Qt.Checked)
+                checkitem.setCheckState(flag)
+
+    def selectAll(self):
+        self.setCheck(QtCore.Qt.Checked)
 
     def unselectAll(self):
-        cnt = self.filesTable.rowCount()
-        for row in range(cnt):
-            checkitem = self.filesTable.item(row, 0)
-            if checkitem.checkState() == QtCore.Qt.Checked:
-                checkitem.setCheckState(QtCore.Qt.Unchecked)
+        self.setCheck(QtCore.Qt.UnChecked)
 
     def doAction(self):
         """
@@ -109,8 +115,8 @@ class Window(QtGui.QDialog):
         indir = self.directoryComboBox.currentText()
         outdir = self.directory2ComboBox.currentText()
 
-        success=True
-        msg=""
+        success = True
+        msg = ""
         cnt = self.filesTable.rowCount()
         for row in range(cnt):
             checkitem = self.filesTable.item(row, 0)
@@ -119,22 +125,24 @@ class Window(QtGui.QDialog):
             item = self.filesTable.item(row, 1)
             name = item.text()
 
-            #qstring to string
-            input = unicode(indir + "\\" + name)
-            output = unicode(outdir + "\\" + name)
+            # qstring to string
+            input = os.path.join(indir, name)
+            output = os.path.join(outdir, name)
 
             try:
-                cutwhite.cut_white(input, output)
-            except Exception,e:
-                print "error while cut white"
-                msg=name
-                success=False
+                cutwhite.cut_white(str(input), str(output))
+            except Exception as e:
+                print("error while cut white")
+                traceback.print_exc()
+                msg = traceback.format_exc()
+                success = False
                 break
         if(success):
-            QtGui.QMessageBox.information(self,"Info","Completed!",QtGui.QMessageBox.Ok)
+            QtWidgets.QMessageBox.information(
+                self, "Info", "Completed!", QtWidgets.QMessageBox.Ok)
         else:
-            QtGui.QMessageBox.warning(self,"Error","Error while process %s" %(msg),QtGui.QMessageBox.Ok)
-
+            QtWidgets.QMessageBox.warning(
+                self, "Error", "Error while process: \n%s" % (msg), QtWidgets.QMessageBox.Ok)
 
         # cutwhite.batch_action(indir,outdir)
 
@@ -160,7 +168,7 @@ class Window(QtGui.QDialog):
         self.showFiles(files)
 
     def findFiles(self, files, text):
-        progressDialog = QtGui.QProgressDialog(self)
+        progressDialog = QtWidgets.QProgressDialog(self)
 
         progressDialog.setCancelButtonText("&Cancel")
         progressDialog.setRange(0, files.count())
@@ -172,7 +180,7 @@ class Window(QtGui.QDialog):
             progressDialog.setValue(i)
             progressDialog.setLabelText("Searching file number %d of %d..." %
                                         (i, files.count()))
-            QtGui.qApp.processEvents()
+            QtWidgets.qApp.processEvents()
 
             if progressDialog.wasCanceled():
                 break
@@ -188,17 +196,17 @@ class Window(QtGui.QDialog):
             file = QtCore.QFile(self.currentDir.absoluteFilePath(fn))
             size = QtCore.QFileInfo(file).size()
 
-            fileNameItem = QtGui.QTableWidgetItem(fn)
+            fileNameItem = QtWidgets.QTableWidgetItem(fn)
             fileNameItem.setFlags(fileNameItem.flags() ^
                                   QtCore.Qt.ItemIsEditable)
-            sizeItem = QtGui.QTableWidgetItem("%d KB" %
-                                              (int((size + 1023) / 1024)))
+            sizeItem = QtWidgets.QTableWidgetItem("%d KB" %
+                                                  (int((size + 1023) / 1024)))
             sizeItem.setTextAlignment(QtCore.Qt.AlignVCenter |
                                       QtCore.Qt.AlignRight)
             sizeItem.setFlags(sizeItem.flags() ^ QtCore.Qt.ItemIsEditable)
 
             # a check item to choose the spec files
-            checkItem = QtGui.QTableWidgetItem()
+            checkItem = QtWidgets.QTableWidgetItem()
             checkItem.setCheckState(QtCore.Qt.Checked)
             checkItem.setTextAlignment(QtCore.Qt.AlignVCenter |
                                        QtCore.Qt.AlignHCenter)
@@ -214,27 +222,27 @@ class Window(QtGui.QDialog):
             len(files))
 
     def createButton(self, text, member):
-        button = QtGui.QPushButton(text)
+        button = QtWidgets.QPushButton(text)
         button.clicked.connect(member)
         return button
 
     def createComboBox(self, text=""):
-        comboBox = QtGui.QComboBox()
+        comboBox = QtWidgets.QComboBox()
         comboBox.setEditable(True)
         comboBox.addItem(text)
-        comboBox.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                               QtGui.QSizePolicy.Preferred)
+        comboBox.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                               QtWidgets.QSizePolicy.Preferred)
         return comboBox
 
     def createFilesTable(self):
-        self.filesTable = QtGui.QTableWidget(0, 3)
+        self.filesTable = QtWidgets.QTableWidget(0, 3)
         self.filesTable.setSelectionBehavior(
-            QtGui.QAbstractItemView.SelectRows)
+            QtWidgets.QAbstractItemView.SelectRows)
 
         self.filesTable.setHorizontalHeaderLabels(("Choose", "File Name",
                                                    "Size"))
-        self.filesTable.horizontalHeader().setResizeMode(
-            1, QtGui.QHeaderView.Stretch)
+        # self.filesTable.horizontalHeader().setResizeMode(
+        #     1, QtWidgets.QHeaderView.Stretch)
         self.filesTable.verticalHeader().hide()
         self.filesTable.setShowGrid(False)
 
@@ -243,15 +251,12 @@ class Window(QtGui.QDialog):
     def openFileOfItem(self, row, column):
         item = self.filesTable.item(row, 0)
 
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
+        QtWidgets.QDesktopServices.openUrl(QtCore.QUrl(
             self.currentDir.absoluteFilePath(item.text())))
 
 
 if __name__ == '__main__':
-
-    import sys
-
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = Window()
     window.show()
     sys.exit(app.exec_())
