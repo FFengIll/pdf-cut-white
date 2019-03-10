@@ -1,15 +1,27 @@
 #!/usr/bin/python
 #-*- coding: utf-8 -*-
-
-from pdfminer.converter import PDFPageAggregator
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.layout import *
-
+try:
+    from pdfminer.converter import PDFPageAggregator
+    from pdfminer.pdfparser import PDFParser
+    from pdfminer.pdfdocument import PDFDocument
+    from pdfminer.pdfpage import PDFPage
+    from pdfminer.pdfpage import PDFTextExtractionNotAllowed
+    from pdfminer.pdfinterp import PDFResourceManager
+    from pdfminer.pdfinterp import PDFPageInterpreter
+    from pdfminer.layout import *
+except:
+    pass
+try:
+    from pdfminer3.converter import PDFPageAggregator
+    from pdfminer3.pdfparser import PDFParser
+    from pdfminer3.pdfdocument import PDFDocument
+    from pdfminer3.pdfpage import PDFPage
+    from pdfminer3.pdfpage import PDFTextExtractionNotAllowed
+    from pdfminer3.pdfinterp import PDFResourceManager
+    from pdfminer3.pdfinterp import PDFPageInterpreter
+    from pdfminer3.layout import *
+except:
+    pass
 
 def get_max_box(boxlist):
     MAX_INT=99999
@@ -75,9 +87,9 @@ def mine_area(filename):
             if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
                 # text
                 print('text{}'.format(item))
-                print item.get_text()
+                print(item.get_text())
             elif isinstance(item, LTImage):
-				print('image:{}'.format(item))
+                print('image:{}'.format(item))
             elif isinstance(item, LTFigure):
                 print('figure:{}'.format(item))
             elif isinstance(item, LTAnno):

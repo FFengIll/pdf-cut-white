@@ -22,6 +22,7 @@ This pdf maybe a print result of table or figure.
 ## Usage
 Before all, install the necessary dependency:
 * `pip install pdfminer PyPDF2`
+* `pip3 install pdfminer3 PyPDF2`
 * or `pip install -r requirements.txt`
 * may add `--user` for user mode
 
@@ -64,7 +65,8 @@ Known limit:
 
 ### Required
 * PyPDF2 (edit box)
-* pdfminer (scan elements)
+* pdfminer (scan elements) (for python2)
+* pdfminer3 (for python3)
 
 ### Optional
 * PySide2 (gui only)
