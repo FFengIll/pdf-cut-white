@@ -1,14 +1,14 @@
-import PyPDF2 as pdflib
-from PyPDF2 import PdfFileWriter, PdfFileReader
-
+import argparse
 import miner
 import os
 import sys
 import logging
 
+import PyPDF2 as pdflib
+from PyPDF2 import PdfFileWriter, PdfFileReader
+
 logging.getLogger().setLevel(logging.INFO)
 
-import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", help="input file", action="store",
                     default='', type=str, dest="input")
@@ -33,8 +33,6 @@ def fix_box(page, fix):
     logging.info(page.artBox)
     logging.info(page.cropBox)
     logging.info(page.bleedBox)
-
-
 
     # must translate relative position to absolute position
     # box position
@@ -63,7 +61,7 @@ def cut_white(inpath, outpath='output.pdf'):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
-    if inpath==outpath:
+    if inpath == outpath:
         raise Exception('input and output can not be the same!')
 
     pages = []
@@ -105,7 +103,7 @@ def scan_files(folder, prefix=None, postfix=None, sub=False):
 
 
 def batch(indir, outdir):
-    if indir==outdir:
+    if indir == outdir:
         raise Exception('input and output can not be the same!')
 
     files = scan_files(indir, postfix='pdf')
