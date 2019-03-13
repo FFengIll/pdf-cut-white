@@ -7,7 +7,17 @@ import logging
 import PyPDF2 as pdflib
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-logging.getLogger().setLevel(logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    # format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+    format='%(asctime)s %(filename)s[%(lineno)d] %(levelname)s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    # filename='parser_result.log',
+    # filemode='w'
+)
+
+logger = logging.getLogger('cutwhite')
+logger.setLevel(logging.DEBUG)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", help="input file", action="store",
@@ -20,6 +30,10 @@ parser.add_argument("-od", help="output directory", action="store",
                     default='', type=str, dest="outdir")
 parser.add_argument("-t", "--test", help="run test",
                     action="store_true", dest="test")
+parser.add_argument("--ignore", help="ignore global",
+                    action="store", type=int, default=0, dest="ignore")
+parser.add_argument("--verbose", help="choose verbose (DEBUG)",
+                    action="store_true", default=False, dest="verbose")
 # parser.add_argument(nargs=argparse.REMAINDER, dest="value")
 args = parser.parse_args()
 
@@ -29,35 +43,35 @@ def fix_box(page, fix):
     cut the box by setting new position (relative position)
     """
     box = page.mediaBox
-    logging.info(page.trimBox)
-    logging.info(page.artBox)
-    logging.info(page.cropBox)
-    logging.info(page.bleedBox)
+    logger.info(page.mediaBox)
+    logger.debug(page.trimBox)
+    logger.debug(page.artBox)
+    logger.debug(page.cropBox)
+    logger.debug(page.bleedBox)
 
     # must translate relative position to absolute position
     # box position
     bx, by = box.getLowerLeft()
     bx = float(bx)
     by = float(by)
+    bx2, by2 = box.getUpperRight()
+    bx2, by2 = float(bx2), float(by2)
 
     # given position to fix
     (x1, y1, x2, y2) = fix
-    x1, y1, x2, y2 = x1+bx, y1+by, x2+bx, y2+by
+    # FIXME: fixed position, choose the smaller area
+    fx1, fy1, fx2, fy2 = max(bx, x1+bx), max(by, y1 +
+                                             by), min(bx2, x2+bx), min(by2, y2+by)
 
-    logging.info("origin box: {}".format(box))
-    # fixed position
-    fx1 = x1
-    fx2 = x2
-    fy1 = y1
-    fy2 = y2
+    logger.info("origin box: {}".format(box))
 
     box.lowerLeft = (fx1, fy1)
     box.upperRight = (fx2, fy2)
 
-    logging.info("fixed box: {}".format(box))
+    logger.info("fixed box: {}".format(box))
 
 
-def cut_white(inpath, outpath='output.pdf'):
+def cut_white(inpath, outpath='output.pdf', ignore=0):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
@@ -65,12 +79,12 @@ def cut_white(inpath, outpath='output.pdf'):
         raise Exception('input and output can not be the same!')
 
     pages = []
-    with open(inpath, 'rb') as infd, open(outpath, 'wb') as outfd:
+    with open(inpath, 'rb') as infd:
         outpdf = PdfFileWriter()
         inpdf = PdfFileReader(infd)
 
         # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
-        pageboxlist = miner.mine_area(inpath)
+        pageboxlist = miner.mine_area(inpath, ignore=ignore)
 
         num = inpdf.getNumPages()
         for i in range(num):
@@ -78,12 +92,14 @@ def cut_white(inpath, outpath='output.pdf'):
             scale = pageboxlist[i]
             page = inpdf.getPage(i)
 
-            logging.info(scale)
+            logger.info(scale)
 
             fix_box(page, scale)
             outpdf.addPage(page)
 
-        outpdf.write(outfd)
+        if outpath:
+            with open(outpath, 'wb') as outfd:
+                outpdf.write(outfd)
 
 
 def scan_files(folder, prefix=None, postfix=None, sub=False):
@@ -102,12 +118,12 @@ def scan_files(folder, prefix=None, postfix=None, sub=False):
     return files
 
 
-def batch(indir, outdir):
+def batch(indir, outdir, ignore=0):
     if indir == outdir:
         raise Exception('input and output can not be the same!')
 
     files = scan_files(indir, postfix='pdf')
-    logging.info(files)
+    logger.info(files)
 
     if not os.path.exists(indir):
         os.mkdir(indir)
@@ -115,7 +131,7 @@ def batch(indir, outdir):
     for item in files:
         inpath = os.path.join(indir, item)
         outpath = os.path.join(outdir, item)
-        cut_white(inpath, outpath)
+        cut_white(inpath, outpath, ignore=ignore)
 
 
 def test_one():
@@ -136,10 +152,14 @@ def run_tests():
 
 
 if __name__ == "__main__":
+    if args.verbose:
+        logging.getLogger().level = logging.DEBUG
     if args.input and args.output:
-        cut_white(args.input, args.output)
+        cut_white(args.input, args.output, args.ignore)
+    elif args.input:
+        cut_white(args.input, None, args.ignore)
     elif args.indir and args.outdir:
-        batch(args.indir, args.outdir)
+        batch(args.indir, args.outdir, args.ignore)
     elif args.test:
         run_tests()
     else:

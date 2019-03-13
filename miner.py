@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import logging
 try:
     from pdfminer.converter import PDFPageAggregator
     from pdfminer.pdfparser import PDFParser
@@ -23,6 +24,8 @@ try:
 except:
     pass
 
+logger = logging.getLogger('miner')
+
 
 def get_max_box(boxlist):
     MAX_INT = 99999
@@ -41,7 +44,7 @@ def get_max_box(boxlist):
     return res
 
 
-def mine_area(filename):
+def mine_area(filename, ignore=0):
     """
     use pdfminer to get the valid area of each page.
     all results are relative position!
@@ -83,35 +86,40 @@ def mine_area(filename):
         boxlist = []
         for item in layout:
             box = item.bbox
-            boxlist.append(box)
 
             if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
                 # text
-                print('text{}'.format(item))
-                print(item.get_text())
+                logger.debug('text{}'.format(item))
+                logger.debug(item.get_text())
             elif isinstance(item, LTImage):
-                print('image:{}'.format(item))
+                logger.debug('image:{}'.format(item))
             elif isinstance(item, LTFigure):
-                print('figure:{}'.format(item))
+                logger.debug('figure:{}'.format(item))
             elif isinstance(item, LTAnno):
-                print('anno:{}'.format(item))
+                logger.debug('anno:{}'.format(item))
             elif isinstance(item, LTChar):
-                print('char:{}'.format(item))
+                logger.debug('char:{}'.format(item))
             elif isinstance(item, LTLine):
-                print('line:{}'.format(item))
+                logger.debug('line:{}'.format(item))
             elif isinstance(item, LTRect):
-                print('rect:{}'.format(item))
+                logger.debug('rect:{}'.format(item))
+                # FIXME: some pdf has a global LTRect, case by case
+                if ignore:
+                    ignore -= 1
+                    continue
             elif isinstance(item, LTCurve):
-                print('curve:{}'.format(item))
+                logger.debug('curve:{}'.format(item))
 
-            pageboxlist.append(boxlist)
-            # for x in layout:
-            #     #如果x是水平文本对象的话
-            #     if (isinstance(x, LTTextBoxHorizontal)):
-            #         # text=re.sub(replace,'',x.get_text())
-            #         text = x.get_text()
-            #         if len(text) != 0:
-            #             print text
+            boxlist.append(box)
+
+        pageboxlist.append(boxlist)
+        # for x in layout:
+        #     #如果x是水平文本对象的话
+        #     if (isinstance(x, LTTextBoxHorizontal)):
+        #         # text=re.sub(replace,'',x.get_text())
+        #         text = x.get_text()
+        #         if len(text) != 0:
+        #             logger.debug text
 
     res = []
     for boxlist in pageboxlist:
