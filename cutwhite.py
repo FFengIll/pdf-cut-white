@@ -7,14 +7,14 @@ import logging
 import PyPDF2 as pdflib
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-logging.basicConfig(
-    level=logging.INFO,
-    # format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-    format='%(asctime)s %(filename)s[%(lineno)d] %(levelname)s %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    # filename='parser_result.log',
-    # filemode='w'
-)
+# logging.basicConfig(
+#     level=logging.INFO,
+#     # format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+#     format='%(asctime)s %(filename)s[%(lineno)d] %(levelname)s %(message)s',
+#     datefmt='%Y-%m-%d %H:%M:%S',
+#     # filename='parser_result.log',
+#     # filemode='w'
+# )
 
 logger = logging.getLogger('cutwhite')
 logger.setLevel(logging.DEBUG)
@@ -78,30 +78,34 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
     if inpath == outpath:
         raise Exception('input and output can not be the same!')
 
-    pages = []
-    with open(inpath, 'rb') as infd:
-        outpdf = PdfFileWriter()
-        inpdf = PdfFileReader(infd)
+    try:
+        pages = []
+        with open(inpath, 'rb') as infd:
+            outpdf = PdfFileWriter()
+            inpdf = PdfFileReader(infd)
 
-        # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
-        pageboxlist = miner.mine_area(inpath, ignore=ignore)
+            # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
+            pageboxlist = miner.mine_area(inpath, ignore=ignore)
 
-        num = inpdf.getNumPages()
-        for i in range(num):
-            # scale is the max box of the page
-            scale = pageboxlist[i]
-            page = inpdf.getPage(i)
+            num = inpdf.getNumPages()
+            for i in range(num):
+                # scale is the max box of the page
+                scale = pageboxlist[i]
+                page = inpdf.getPage(i)
 
-            logger.info(scale)
+                logger.info(scale)
 
-            fix_box(page, scale)
-            outpdf.addPage(page)
+                fix_box(page, scale)
+                outpdf.addPage(page)
 
-        if outpath:
-            with open(outpath, 'wb') as outfd:
-                outpdf.write(outfd)
-
-
+            if outpath:
+                with open(outpath, 'wb') as outfd:
+                    outpdf.write(outfd)
+    except UnicodeEncodeError:
+        print('UnicodeEncodeError while processing file:{}'.format(inpath))
+    except Exception:
+        print('Some other Error while processing file:{}'.format(inpath))
+        
 def scan_files(folder, prefix=None, postfix=None, sub=False):
     """
     scan files under the dir with spec prefix and postfix
