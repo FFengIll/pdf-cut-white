@@ -29,7 +29,7 @@ Before all, install the necessary dependency:
 Recommend to use `command line tool` (not the GUI):
 * single file: `python cutwhite.py -i in.pdf -o out.pdf`
 * folder: `python cutwhite.py -id infolder -od outfolder`
-
+* sometimes: add `--ignore 1`
 If you wanna use the GUI (base on PySide2: official Qt for Python):
 * `pip install pyside2`
 * if success, run `python gui.py`
@@ -39,6 +39,8 @@ If you wanna use the GUI (base on PySide2: official Qt for Python):
 * 启用工具，选择输入文件夹和输出文件夹（必须使用不同的文件夹防止源文件覆盖）
 * 扫描pdf文件（GUI支持在列表中二次选择PDF）（注意：仅会扫描一级目录，而不会扫描子目录）
 * 确认无误后，点击完成PDF裁剪（仅选中的文件），并输出到输出文件夹下
+
+注意，部分pdf输出会在最外围加上RT元素，导致无法裁剪，这时候可以添加`--ignore 1`参数，再做尝试。
 
 ## Limit
 Known limit:
