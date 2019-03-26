@@ -3,9 +3,11 @@
 ## Motivation
 While latex, it takes time to `cut the unneccessary white part in pdf`, then, here comes a tool for it.
 
-在使用Latex书写论文时，花费了不少的时间处理PDF图表——`裁剪不必要的图表白边`。
+在使用Latex书写论文时（或者其他时刻），花费了不少的时间处理PDF图表——`裁剪不必要的图表白边`。
 
 所幸就写个工具自动完成吧——自动化且精准。
+
+这个文档已经够短了，请务必读一遍先。
 
 ## Feature
 Automatic cut the unneccessary white part in pdf.
@@ -20,17 +22,20 @@ This pdf maybe a print result of table or figure.
 * 输入无白边PDF文件
 
 ## Usage
+Recommend to use `Python3`.
+
 Before all, install the necessary dependency:
-* `pip install pdfminer PyPDF2`
-* `pip3 install pdfminer3 PyPDF2`
-* or `pip install -r requirements.txt`
+* `pip install pdfminer PyPDF2 Logbook`（python2，**NOT Recommend**）
+* `pip3 install pdfminer3 PyPDF2 Logbook`（python3）
+* or `pip install -r requirements.txt`（python3）
 * may add `--user` for user mode
 
 Recommend to use `command line tool` (not the GUI):
 * single file: `python cutwhite.py -i in.pdf -o out.pdf`
 * folder: `python cutwhite.py -id infolder -od outfolder`
 * sometimes: add `--ignore 1`
-If you wanna use the GUI (base on PySide2: official Qt for Python):
+
+If you **REALLY** wanna use the GUI (base on PySide2: official Qt for Python):
 * `pip install pyside2`
 * if success, run `python gui.py`
 * enjoy it~!
@@ -40,7 +45,10 @@ If you wanna use the GUI (base on PySide2: official Qt for Python):
 * 扫描pdf文件（GUI支持在列表中二次选择PDF）（注意：仅会扫描一级目录，而不会扫描子目录）
 * 确认无误后，点击完成PDF裁剪（仅选中的文件），并输出到输出文件夹下
 
-注意，部分pdf输出会在最外围加上RT元素，导致无法裁剪，这时候可以添加`--ignore 1`参数，再做尝试。
+注意：部分pdf输出会在最外围加上RT元素，导致无法裁剪，这时候可以添加`--ignore 1`参数，再做尝试。
+请优先不带`ignore`尝试，有问题再带参数，人工检查一遍即可。
+
+注意：发现任何问题，请参看`issue`，若仍无法解决，请提新`issue`（请`--verbose`执行并附带log）。
 
 ## Limit
 Known limit:
