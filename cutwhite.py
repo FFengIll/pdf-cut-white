@@ -3,21 +3,15 @@ import miner
 import os
 import sys
 import logging
+import traceback
 
+from logbook import Logger,StreamHandler
 import PyPDF2 as pdflib
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-# logging.basicConfig(
-#     level=logging.INFO,
-#     # format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-#     format='%(asctime)s %(filename)s[%(lineno)d] %(levelname)s %(message)s',
-#     datefmt='%Y-%m-%d %H:%M:%S',
-#     # filename='parser_result.log',
-#     # filemode='w'
-# )
-
-logger = logging.getLogger('cutwhite')
-logger.setLevel(logging.DEBUG)
+handler = StreamHandler(sys.stdout,level='INFO')
+handler.push_application()
+logger = Logger('cutwhite')
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", help="input file", action="store",
@@ -43,7 +37,7 @@ def fix_box(page, fix):
     cut the box by setting new position (relative position)
     """
     box = page.mediaBox
-    logger.info(page.mediaBox)
+    logger.info('media box: {}',page.mediaBox)
     logger.debug(page.trimBox)
     logger.debug(page.artBox)
     logger.debug(page.cropBox)
@@ -81,6 +75,7 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
     try:
         pages = []
         with open(inpath, 'rb') as infd:
+            logger.info('process file: {}',inpath)
             outpdf = PdfFileWriter()
             inpdf = PdfFileReader(infd)
 
@@ -93,7 +88,7 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
                 scale = pageboxlist[i]
                 page = inpdf.getPage(i)
 
-                logger.info(scale)
+                logger.info('origin scale: {}',scale)
 
                 fix_box(page, scale)
                 outpdf.addPage(page)
@@ -101,10 +96,13 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
             if outpath:
                 with open(outpath, 'wb') as outfd:
                     outpdf.write(outfd)
+                    logger.info('output file: {}',outpath)
     except UnicodeEncodeError:
         print('UnicodeEncodeError while processing file:{}'.format(inpath))
+        traceback.print_exc()
     except Exception:
         print('Some other Error while processing file:{}'.format(inpath))
+        traceback.print_exc()
         
 def scan_files(folder, prefix=None, postfix=None, sub=False):
     """
@@ -157,7 +155,8 @@ def run_tests():
 
 if __name__ == "__main__":
     if args.verbose:
-        logging.getLogger().level = logging.DEBUG
+        handler.level = logging.DEBUG
+
     if args.input and args.output:
         cut_white(args.input, args.output, args.ignore)
     elif args.input:

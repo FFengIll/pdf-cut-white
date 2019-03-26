@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
+
+from logbook import Logger
 try:
     from pdfminer.converter import PDFPageAggregator
     from pdfminer.pdfparser import PDFParser
@@ -24,7 +26,7 @@ try:
 except:
     pass
 
-logger = logging.getLogger('miner')
+logger = Logger('miner')
 
 
 def get_max_box(boxlist):
