@@ -13,7 +13,7 @@ While latex, it takes time to `cut the unneccessary white part in pdf`, then, he
 Automatic cut the unneccessary white part in pdf.
 This pdf maybe a print result of table or figure.
 
-工具可以对生成的PDF图表进行自动裁剪，减少人工操作和其他软件依赖（如Acrobat）。  
+工具可以对生成的PDF图表进行自动裁剪，减少人工操作和其他软件依赖（如`Acrobat`）。
 
 其自动的工作流程为：
 * 读取原始PDF文件
@@ -22,13 +22,13 @@ This pdf maybe a print result of table or figure.
 * 输入无白边PDF文件
 
 ## Usage
-Recommend to use `Python3`.
+Install `Python` (Recommend to use `Python3`).
 
 Before all, install the necessary dependency:
-* `pip install pdfminer PyPDF2 Logbook`（python2，**NOT Recommend**）
-* `pip3 install pdfminer3 PyPDF2 Logbook`（python3）
-* or `pip install -r requirements.txt`（python3）
-* may add `--user` for user mode
+* `pip install pdfminer PyPDF2`（python2，**NOT Recommend**）
+* `pip3 install pdfminer3 PyPDF2` or `pip install -r requirements.txt`（python3）
+
+> may add `--user` for user mode
 
 Recommend to use `command line tool` (not the GUI):
 * single file: `python cutwhite.py -i in.pdf -o out.pdf`
@@ -76,7 +76,7 @@ Known limit:
 ### Required
 * PyPDF2 (edit box)
 * pdfminer (scan elements) (for python2)
-* pdfminer3 (for python3)
+* pdfminer3 (scan elements) (for python3)
 
 ### Optional
 * PySide2 (gui only)
@@ -84,5 +84,5 @@ Known limit:
 
 ### Mention
 * No dependencies needed while use packaged exe version.
-* For develop, need the `required`.
+* For develop and cli, need the `required`.
 * For GUI and Bin, need the `optional` too.

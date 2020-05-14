@@ -1,5 +1,4 @@
 PyPDF2
-# no python2 support
+# remove python2 support
 # pdfminer
 pdfminer3
-Logbook

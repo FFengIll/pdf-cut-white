@@ -61,10 +61,13 @@ def fix_box(page, fix):
     logger.info("fixed box: %s", (box))
 
 
-def cut_white(inpath, outpath='output.pdf', ignore=0):
+def cut_white(inpath, outpath: str = None, ignore=0):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
+    if outpath is None:
+        outpath = 'output.pdf'
+
     if inpath == outpath:
         raise Exception('input and output can not be the same!')
 
@@ -93,6 +96,7 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
                 with open(outpath, 'wb') as outfd:
                     outpdf.write(outfd)
                     logger.info('output file: %s', outpath)
+
     except UnicodeEncodeError as ue:
         logger.exception('UnicodeEncodeError while processing file:%s', (inpath))
         logger.exception(ue)
@@ -161,6 +165,6 @@ if __name__ == "__main__":
     elif args.indir and args.outdir:
         batch(args.indir, args.outdir, args.ignore)
     elif args.test:
-        run_tests()
+        tests()
     else:
         parser.print_help()
