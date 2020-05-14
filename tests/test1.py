@@ -1,4 +1,3 @@
-import PyPDF2 as pdflib
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
 pdf = PdfFileReader(open('input/input.pdf', 'rb'))

@@ -1,13 +1,10 @@
-import sys,os
-import PyPDF2 as pdf
-
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
 output = PdfFileWriter()
 input1 = PdfFileReader(open("input.pdf", "rb"))
 
 # print how many pages input1 has:
-print "document1.pdf has %d pages." % input1.getNumPages()
+print("document1.pdf has %d pages." % input1.getNumPages())
 
 # add page 1 from input1 to output document, unchanged
 output.addPage(input1.getPage(0))
@@ -24,7 +21,6 @@ page4 = input1.getPage(3)
 watermark = PdfFileReader(open("input.pdf", "rb"))
 page4.mergePage(watermark.getPage(0))
 output.addPage(page4)
-
 
 # add page 5 from input1, but crop it to half size:
 page5 = input1.getPage(4)
@@ -44,8 +40,8 @@ password = "secret"
 output.encrypt(password)
 
 # finally, write "output" to document-output.pdf
-outputStream = file("output.pdf", "wb")
+outputStream = open("output.pdf", "wb")
 output.write(outputStream)
 
-if __name__=="__main__":
-    print "hello"
+if __name__ == "__main__":
+    print("hello")
