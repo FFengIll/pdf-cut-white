@@ -1,15 +1,13 @@
 import logging
 import sys
 
-logging.basicConfig(style='{')
-
 
 def get_logger(name, level=logging.NOTSET, file=None):
     try:
         if isinstance(level, str):
             level = getattr(logging, level.upper())
 
-        app_log = logging.getLogger('')
+        app_log = logging.getLogger(name)
         # 必须设置，否则无法输出
         app_log.setLevel(level)
 
