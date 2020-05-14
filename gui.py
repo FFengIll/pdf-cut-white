@@ -4,13 +4,16 @@
 this gui based on PySide2 (QT for Python) and used the example - findfiles.pyw as template.
 '''
 
-import sys
 import os
+import sys
 import traceback
 
-from PySide2 import QtWidgets, QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 import cutwhite
+from utils import get_logger
+
+logger = get_logger(__name__, level='INFO')
 
 
 class Window(QtWidgets.QDialog):
@@ -137,7 +140,7 @@ class Window(QtWidgets.QDialog):
                 msg = traceback.format_exc()
                 success = False
                 break
-        if(success):
+        if (success):
             QtWidgets.QMessageBox.information(
                 self, "Info", "Completed!", QtWidgets.QMessageBox.Ok)
         else:

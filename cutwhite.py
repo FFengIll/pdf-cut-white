@@ -1,17 +1,13 @@
 import argparse
-import miner
-import os
-import sys
 import logging
-import traceback
+import os
 
-from logbook import Logger,StreamHandler
-import PyPDF2 as pdflib
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-handler = StreamHandler(sys.stdout,level='INFO')
-handler.push_application()
-logger = Logger('cutwhite')
+import miner
+from utils import get_logger
+
+logger = get_logger(__name__, level=logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", help="input file", action="store",
@@ -37,7 +33,7 @@ def fix_box(page, fix):
     cut the box by setting new position (relative position)
     """
     box = page.mediaBox
-    logger.info('media box: {}',page.mediaBox)
+    logger.info('media box: %s', page.mediaBox)
     logger.debug(page.trimBox)
     logger.debug(page.artBox)
     logger.debug(page.cropBox)
@@ -54,15 +50,15 @@ def fix_box(page, fix):
     # given position to fix
     (x1, y1, x2, y2) = fix
     # FIXME: fixed position, choose the smaller area
-    fx1, fy1, fx2, fy2 = max(bx, x1+bx), max(by, y1 +
-                                             by), min(bx2, x2+bx), min(by2, y2+by)
+    fx1, fy1, fx2, fy2 = max(bx, x1 + bx), max(by, y1 +
+                                               by), min(bx2, x2 + bx), min(by2, y2 + by)
 
-    logger.info("origin box: {}".format(box))
+    logger.info("origin box: %s", (box))
 
     box.lowerLeft = (fx1, fy1)
     box.upperRight = (fx2, fy2)
 
-    logger.info("fixed box: {}".format(box))
+    logger.info("fixed box: %s", (box))
 
 
 def cut_white(inpath, outpath='output.pdf', ignore=0):
@@ -75,7 +71,7 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
     try:
         pages = []
         with open(inpath, 'rb') as infd:
-            logger.info('process file: {}',inpath)
+            logger.info('process file: %s', inpath)
             outpdf = PdfFileWriter()
             inpdf = PdfFileReader(infd)
 
@@ -88,7 +84,7 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
                 scale = pageboxlist[i]
                 page = inpdf.getPage(i)
 
-                logger.info('origin scale: {}',scale)
+                logger.info('origin scale: %s', scale)
 
                 fix_box(page, scale)
                 outpdf.addPage(page)
@@ -96,14 +92,15 @@ def cut_white(inpath, outpath='output.pdf', ignore=0):
             if outpath:
                 with open(outpath, 'wb') as outfd:
                     outpdf.write(outfd)
-                    logger.info('output file: {}',outpath)
-    except UnicodeEncodeError:
-        print('UnicodeEncodeError while processing file:{}'.format(inpath))
-        traceback.print_exc()
-    except Exception:
-        print('Some other Error while processing file:{}'.format(inpath))
-        traceback.print_exc()
-        
+                    logger.info('output file: %s', outpath)
+    except UnicodeEncodeError as ue:
+        logger.exception('UnicodeEncodeError while processing file:%s', (inpath))
+        logger.exception(ue)
+    except Exception as e:
+        logger.exception('Some other Error while processing file:%s', (inpath))
+        logger.exception(e)
+
+
 def scan_files(folder, prefix=None, postfix=None, sub=False):
     """
     scan files under the dir with spec prefix and postfix
@@ -148,14 +145,14 @@ def test_batch():
     batch(indir, outdir)
 
 
-def run_tests():
+def tests():
     test_one()
     test_batch()
 
 
 if __name__ == "__main__":
     if args.verbose:
-        handler.level = logging.DEBUG
+        logger.setLevel('DEBUG')
 
     if args.input and args.output:
         cut_white(args.input, args.output, args.ignore)

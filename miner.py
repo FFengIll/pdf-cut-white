@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from logbook import Logger
 try:
     from pdfminer.converter import PDFPageAggregator
     from pdfminer.pdfparser import PDFParser
@@ -26,7 +25,9 @@ try:
 except:
     pass
 
-logger = Logger('miner')
+from utils import get_logger
+
+logger = get_logger(__name__, level=logging.INFO)
 
 
 def get_max_box(boxlist):
@@ -51,19 +52,19 @@ def mine_area(filename, ignore=0):
     use pdfminer to get the valid area of each page.
     all results are relative position!
     """
-   # 打开一个pdf文件
+    # 打开一个pdf文件
     fp = open(filename, 'rb')
     # 创建一个PDF文档解析器对象
     parser = PDFParser(fp)
     # 创建一个PDF文档对象存储文档结构
     # 提供密码初始化，没有就不用传该参数
-    #document = PDFDocument(parser, password)
+    # document = PDFDocument(parser, password)
     document = PDFDocument(parser)
     # 检查文件是否允许文本提取
     if not document.is_extractable:
         raise PDFTextExtractionNotAllowed
     # 创建一个PDF资源管理器对象来存储共享资源
-    #caching = False不缓存
+    # caching = False不缓存
     rsrcmgr = PDFResourceManager(caching=False)
     # 创建一个PDF设备对象
     laparams = LAParams()
@@ -91,26 +92,26 @@ def mine_area(filename, ignore=0):
 
             if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
                 # text
-                logger.debug('text{}'.format(item))
+                logger.debug('text%s', (item))
                 logger.debug(item.get_text())
             elif isinstance(item, LTImage):
-                logger.debug('image:{}'.format(item))
+                logger.debug('image:%s', (item))
             elif isinstance(item, LTFigure):
-                logger.debug('figure:{}'.format(item))
+                logger.debug('figure:%s', (item))
             elif isinstance(item, LTAnno):
-                logger.debug('anno:{}'.format(item))
+                logger.debug('anno:%s', (item))
             elif isinstance(item, LTChar):
-                logger.debug('char:{}'.format(item))
+                logger.debug('char:%s', (item))
             elif isinstance(item, LTLine):
-                logger.debug('line:{}'.format(item))
+                logger.debug('line:%s', (item))
             elif isinstance(item, LTRect):
-                logger.debug('rect:{}'.format(item))
+                logger.debug('rect:%s', (item))
                 # FIXME: some pdf has a global LTRect, case by case
                 if ignore:
                     ignore -= 1
                     continue
             elif isinstance(item, LTCurve):
-                logger.debug('curve:{}'.format(item))
+                logger.debug('curve:%s', (item))
 
             boxlist.append(box)
 
