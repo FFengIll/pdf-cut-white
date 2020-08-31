@@ -1,14 +1,28 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from pdfminer.converter import PDFPageAggregator
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.layout import *
+try:
+    from pdfminer.converter import PDFPageAggregator
+    from pdfminer.pdfparser import PDFParser
+    from pdfminer.pdfdocument import PDFDocument
+    from pdfminer.pdfpage import PDFPage
+    from pdfminer.pdfpage import PDFTextExtractionNotAllowed
+    from pdfminer.pdfinterp import PDFResourceManager
+    from pdfminer.pdfinterp import PDFPageInterpreter
+    from pdfminer.layout import *
+except:
+    pass
+try:
+    from pdfminer3.converter import PDFPageAggregator
+    from pdfminer3.pdfparser import PDFParser
+    from pdfminer3.pdfdocument import PDFDocument
+    from pdfminer3.pdfpage import PDFPage
+    from pdfminer3.pdfpage import PDFTextExtractionNotAllowed
+    from pdfminer3.pdfinterp import PDFResourceManager
+    from pdfminer3.pdfinterp import PDFPageInterpreter
+    from pdfminer3.layout import *
+except:
+    pass
 
 
 def get_max_box(boxlist):
@@ -42,7 +56,7 @@ def mine_area(filename):
         parser = PDFParser(fp)
         # 创建一个PDF文档对象存储文档结构
         # 提供密码初始化，没有就不用传该参数
-        #document = PDFDocument(parser, password)
+        # document = PDFDocument(parser, password)
         document = PDFDocument(parser)
         # 检查文件是否允许文本提取
         if not document.is_extractable:
@@ -70,7 +84,7 @@ def mine_area(filename):
             # 这里layout是一个LTPage对象 里面存放着 这个page解析出的各种对象。一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
             boxlist = []
             for item in layout:
-                if count>=3:
+                if count >= 3:
                     break
                 box = item.bbox
                 boxlist.append(box)
@@ -79,7 +93,7 @@ def mine_area(filename):
                     print('text:{}'.format(item))
                     print(item.height)
                     print(item.get_text())
-                    count+=1
+                    count += 1
                 elif isinstance(item, LTImage):
                     print('image:{}'.format(item))
                 elif isinstance(item, LTFigure):
@@ -111,6 +125,7 @@ def mine_area(filename):
         tmp = get_max_box(boxlist)
         res.append(tmp)
     return res
+
 
 if __name__ == "__main__":
     mine_area('test-complex2.pdf')
