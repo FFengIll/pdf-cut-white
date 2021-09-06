@@ -1,31 +1,36 @@
 import argparse
-import logging
 import os
+import sys
 
+import loguru
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-import miner
-from utils import get_logger
+from pdf_white_cut import miner
 
-logger = get_logger(__name__, level=logging.INFO)
+logger = loguru.logger
+logger.remove()
+logger.add(sys.stderr, level="INFO")
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", help="input file", action="store",
-                    default='', type=str, dest="input")
-parser.add_argument("-o", help="output file", action="store",
-                    default='', type=str, dest="output")
-parser.add_argument("-id", help="input directory", action="store",
-                    default='', type=str, dest="indir")
-parser.add_argument("-od", help="output directory", action="store",
-                    default='', type=str, dest="outdir")
-parser.add_argument("-t", "--test", help="run test",
-                    action="store_true", dest="test")
-parser.add_argument("--ignore", help="ignore global",
-                    action="store", type=int, default=0, dest="ignore")
-parser.add_argument("--verbose", help="choose verbose (DEBUG)",
-                    action="store_true", default=False, dest="verbose")
-# parser.add_argument(nargs=argparse.REMAINDER, dest="value")
-args = parser.parse_args()
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", help="input file", action="store",
+                        default='', type=str, dest="input")
+    parser.add_argument("-o", help="output file", action="store",
+                        default='', type=str, dest="output")
+    parser.add_argument("-id", help="input directory", action="store",
+                        default='', type=str, dest="indir")
+    parser.add_argument("-od", help="output directory", action="store",
+                        default='', type=str, dest="outdir")
+    parser.add_argument("-t", "--test", help="run test",
+                        action="store_true", dest="test")
+    parser.add_argument("--ignore", help="ignore global",
+                        action="store", type=int, default=0, dest="ignore")
+    parser.add_argument("--verbose", help="choose verbose (DEBUG)",
+                        action="store_true", default=False, dest="verbose")
+    # parser.add_argument(nargs=argparse.REMAINDER, dest="value")
+    args = parser.parse_args()
+    return args
 
 
 def fix_box(page, fix):
@@ -33,7 +38,7 @@ def fix_box(page, fix):
     cut the box by setting new position (relative position)
     """
     box = page.mediaBox
-    logger.info('media box: %s', page.mediaBox)
+    logger.info('media box: {}', page.mediaBox)
     logger.debug(page.trimBox)
     logger.debug(page.artBox)
     logger.debug(page.cropBox)
@@ -50,15 +55,19 @@ def fix_box(page, fix):
     # given position to fix
     (x1, y1, x2, y2) = fix
     # FIXME: fixed position, choose the smaller area
-    fx1, fy1, fx2, fy2 = max(bx, x1 + bx), max(by, y1 +
-                                               by), min(bx2, x2 + bx), min(by2, y2 + by)
+    fx1, fy1, fx2, fy2 = (
+        max(bx, x1 + bx),
+        max(by, y1 + by),
+        min(bx2, x2 + bx),
+        min(by2, y2 + by)
+    )
 
-    logger.info("origin box: %s", (box))
+    logger.info("origin box: {}", box)
 
     box.lowerLeft = (fx1, fy1)
     box.upperRight = (fx2, fy2)
 
-    logger.info("fixed box: %s", (box))
+    logger.info("fixed box: {}", box)
 
 
 def cut_white(inpath, outpath: str = None, ignore=0):
@@ -74,7 +83,7 @@ def cut_white(inpath, outpath: str = None, ignore=0):
     try:
         pages = []
         with open(inpath, 'rb') as infd:
-            logger.info('process file: %s', inpath)
+            logger.info('process file: {}', inpath)
             outpdf = PdfFileWriter()
             inpdf = PdfFileReader(infd)
 
@@ -87,7 +96,7 @@ def cut_white(inpath, outpath: str = None, ignore=0):
                 scale = pageboxlist[i]
                 page = inpdf.getPage(i)
 
-                logger.info('origin scale: %s', scale)
+                logger.info('origin scale: {}', scale)
 
                 fix_box(page, scale)
                 outpdf.addPage(page)
@@ -95,13 +104,13 @@ def cut_white(inpath, outpath: str = None, ignore=0):
             if outpath:
                 with open(outpath, 'wb') as outfd:
                     outpdf.write(outfd)
-                    logger.info('output file: %s', outpath)
+                    logger.info('output file: {}', outpath)
 
     except UnicodeEncodeError as ue:
-        logger.exception('UnicodeEncodeError while processing file:%s', (inpath))
+        logger.exception('UnicodeEncodeError while processing file:{}', inpath)
         logger.exception(ue)
     except Exception as e:
-        logger.exception('Some other Error while processing file:%s', (inpath))
+        logger.exception('Some other Error while processing file:{}', inpath)
         logger.exception(e)
 
 
@@ -135,36 +144,3 @@ def batch(indir, outdir, ignore=0):
         inpath = os.path.join(indir, item)
         outpath = os.path.join(outdir, item)
         cut_white(inpath, outpath, ignore=ignore)
-
-
-def test_one():
-    inputfile = './input/input.pdf'
-    outputfile = './output/output.pdf'
-    cut_white(inputfile, outputfile)
-
-
-def test_batch():
-    outdir = './output'
-    indir = './input'
-    batch(indir, outdir)
-
-
-def tests():
-    test_one()
-    test_batch()
-
-
-if __name__ == "__main__":
-    if args.verbose:
-        logger.setLevel('DEBUG')
-
-    if args.input and args.output:
-        cut_white(args.input, args.output, args.ignore)
-    elif args.input:
-        cut_white(args.input, None, args.ignore)
-    elif args.indir and args.outdir:
-        batch(args.indir, args.outdir, args.ignore)
-    elif args.test:
-        tests()
-    else:
-        parser.print_help()

@@ -8,9 +8,8 @@ import os
 import sys
 import traceback
 
-from PySide2 import QtCore, QtWidgets
-
 import cutwhite
+from PySide2 import QtCore, QtWidgets
 from utils import get_logger
 
 logger = get_logger(__name__, level='INFO')
@@ -31,7 +30,7 @@ class Window(QtWidgets.QDialog):
         self.textComboBox = self.createComboBox()
         self.directoryComboBox = self.createComboBox(QtCore.QDir.currentPath())
         self.directory2ComboBox = self.createComboBox(
-            os.path.join(QtCore.QDir.currentPath(), 'output'))
+            os.path.join(QtCore.QDir.currentPath(), 'cases/output'))
 
         fileLabel = QtWidgets.QLabel("Named:")
         directoryLabel = QtWidgets.QLabel("Input directory:")

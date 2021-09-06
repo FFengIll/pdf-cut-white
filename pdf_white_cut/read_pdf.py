@@ -76,7 +76,6 @@ def mine_area(filename):
         # for i, page in enumerate(document.get_pages()):
         # PDFPage.create_pages(document) 获取page列表的另一种方式
         # 循环遍历列表，每次处理一个page的内容
-        count = 0
         for page in PDFPage.create_pages(document):
             interpreter.process_page(page)
             # 接受该页面的LTPage对象
@@ -84,8 +83,6 @@ def mine_area(filename):
             # 这里layout是一个LTPage对象 里面存放着 这个page解析出的各种对象。一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
             boxlist = []
             for item in layout:
-                if count >= 3:
-                    break
                 box = item.bbox
                 boxlist.append(box)
 

@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import logging
 
 try:
     from pdfminer.converter import PDFPageAggregator
@@ -25,9 +24,9 @@ try:
 except:
     pass
 
-from utils import get_logger
+import loguru
 
-logger = get_logger(__name__, level=logging.INFO)
+logger = loguru.logger
 
 
 def get_max_box(boxlist):
@@ -92,26 +91,28 @@ def mine_area(filename, ignore=0):
 
             if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
                 # text
-                logger.debug('text%s', (item))
+                logger.debug('text{}', item)
                 logger.debug(item.get_text())
+                # the text has a height on y axis, so we must modify it
+                box = box[0], box[1] - item.height, box[2], box[3]
             elif isinstance(item, LTImage):
-                logger.debug('image:%s', (item))
+                logger.debug('image:{}', item)
             elif isinstance(item, LTFigure):
-                logger.debug('figure:%s', (item))
+                logger.debug('figure:{}', item)
             elif isinstance(item, LTAnno):
-                logger.debug('anno:%s', (item))
+                logger.debug('anno:{}', item)
             elif isinstance(item, LTChar):
-                logger.debug('char:%s', (item))
+                logger.debug('char:{}', item)
             elif isinstance(item, LTLine):
-                logger.debug('line:%s', (item))
+                logger.debug('line:{}', item)
             elif isinstance(item, LTRect):
-                logger.debug('rect:%s', (item))
+                logger.debug('rect:{}', item)
                 # FIXME: some pdf has a global LTRect, case by case
-                if ignore:
+                if ignore > 0:
                     ignore -= 1
                     continue
             elif isinstance(item, LTCurve):
-                logger.debug('curve:%s', (item))
+                logger.debug('curve:{}', item)
 
             boxlist.append(box)
 
@@ -126,6 +127,8 @@ def mine_area(filename, ignore=0):
 
     res = []
     for boxlist in pageboxlist:
+        logger.warning(boxlist)
         tmp = get_max_box(boxlist)
         res.append(tmp)
+    logger.warning(res)
     return res
