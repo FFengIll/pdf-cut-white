@@ -27,8 +27,6 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 
 - Install `python3`
 - Install requirements for dependencies.
-  - `pip install pdfminer PyPDF2`（python2，**NOT Recommend**）
-  - `pip3 install pdfminer3 PyPDF2`
   - `pip3 install -r requirements.txt`（python3）
 
 > may add `--user` for user mode
