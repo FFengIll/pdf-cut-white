@@ -4,6 +4,7 @@ import sys
 
 import loguru
 from PyPDF2 import PdfFileWriter, PdfFileReader
+from path import Path
 
 from pdf_white_cut import miner
 
@@ -33,11 +34,12 @@ def parse_args():
     return args
 
 
-def fix_box(page, fix):
+def edit_box(page, useful_area):
     """
     cut the box by setting new position (relative position)
     """
     box = page.mediaBox
+    # MENTION: media box is a visible area of the pdf page
     logger.info('media box: {}', page.mediaBox)
     logger.debug(page.trimBox)
     logger.debug(page.artBox)
@@ -46,101 +48,92 @@ def fix_box(page, fix):
 
     # must translate relative position to absolute position
     # box position
-    bx, by = box.getLowerLeft()
-    bx = float(bx)
-    by = float(by)
+    bx1, by1 = box.getLowerLeft()
+    bx1, by1 = float(bx1), float(by1)
     bx2, by2 = box.getUpperRight()
     bx2, by2 = float(bx2), float(by2)
 
-    # given position to fix
-    (x1, y1, x2, y2) = fix
-    # FIXME: fixed position, choose the smaller area
-    fx1, fy1, fx2, fy2 = (
-        max(bx, x1 + bx),
-        max(by, y1 + by),
-        min(bx2, x2 + bx),
-        min(by2, y2 + by)
-    )
+    # visible area
+    (x1, y1, x2, y2) = useful_area
 
+    # MENTION: all of the box is relative position, so we need to fix the position, choose the smaller area
     logger.info("origin box: {}", box)
 
-    box.lowerLeft = (fx1, fy1)
-    box.upperRight = (fx2, fy2)
+    box.lowerLeft = (
+        max(bx1, x1 + bx1),
+        max(by1, y1 + by1)
+    )
+    box.upperRight = (
+        min(bx2, x2 + bx1),
+        min(by2, y2 + by1)
+    )
 
     logger.info("fixed box: {}", box)
 
 
-def cut_white(inpath, outpath: str = None, ignore=0):
+def cut_white(source, target: str = None, ignore=0):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
-    if outpath is None:
-        outpath = 'output.pdf'
+    if target is None:
+        target = 'output.pdf'
 
-    if inpath == outpath:
+    if source == target:
         raise Exception('input and output can not be the same!')
 
     try:
-        pages = []
-        with open(inpath, 'rb') as infd:
-            logger.info('process file: {}', inpath)
-            outpdf = PdfFileWriter()
+        with open(source, 'rb') as infd:
+            logger.info('process file: {}', source)
             inpdf = PdfFileReader(infd)
 
+            # MENTION: never move and change the sequence, since file IO
             # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
-            pageboxlist = miner.mine_area(inpath, ignore=ignore)
+            page_box_list = miner.mine_area(source, ignore=ignore)
+            outpdf = PdfFileWriter()
 
-            num = inpdf.getNumPages()
-            for i in range(num):
+            for idx in range(inpdf.getNumPages()):
                 # scale is the max box of the page
-                scale = pageboxlist[i]
-                page = inpdf.getPage(i)
-
+                scale = page_box_list[idx]
                 logger.info('origin scale: {}', scale)
 
-                fix_box(page, scale)
+                page = inpdf.getPage(idx)
+                edit_box(page, scale)
                 outpdf.addPage(page)
 
-            if outpath:
-                with open(outpath, 'wb') as outfd:
-                    outpdf.write(outfd)
-                    logger.info('output file: {}', outpath)
+            with open(target, 'wb') as outfd:
+                outpdf.write(outfd)
+                logger.info('output file: {}', target)
 
     except UnicodeEncodeError as ue:
-        logger.exception('UnicodeEncodeError while processing file:{}', inpath)
+        logger.exception('UnicodeEncodeError while processing file:{}', source)
         logger.exception(ue)
     except Exception as e:
-        logger.exception('Some other Error while processing file:{}', inpath)
+        logger.exception('Some other Error while processing file:{}', source)
         logger.exception(e)
 
 
-def scan_files(folder, prefix=None, postfix=None, sub=False):
+def scan_files(folder, glob=""):
     """
     scan files under the dir with spec prefix and postfix
     """
     files = []
-
-    for item in os.listdir(folder):
-        path = os.path.join(folder, item)
-        if os.path.isfile(path):
-            if postfix:
-                if item.endswith(postfix):
-                    files.append(item)
-
+    for item in Path(folder).listdir(glob):
+        item: 'Path'
+        files.append(item.abspath())
     return files
 
 
-def batch(indir, outdir, ignore=0):
-    if indir == outdir:
+def batch(sources, targets, ignore=0):
+    if sources == targets:
         raise Exception('input and output can not be the same!')
 
-    files = scan_files(indir, postfix='pdf')
+    files = scan_files(sources, glob='*.pdf')
     logger.info(files)
 
-    if not os.path.exists(indir):
-        os.mkdir(indir)
+    if not os.path.exists(sources):
+        os.mkdir(sources)
 
     for item in files:
-        inpath = os.path.join(indir, item)
-        outpath = os.path.join(outdir, item)
-        cut_white(inpath, outpath, ignore=ignore)
+        source = os.path.join(sources, item)
+        target = os.path.join(targets, item)
+        cut_white(source, target, ignore=ignore)

@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import sys
 
 try:
     from pdfminer.converter import PDFPageAggregator
@@ -29,21 +30,21 @@ import loguru
 logger = loguru.logger
 
 
-def get_max_box(boxlist):
-    MAX_INT = 99999
-    tx1 = MAX_INT
-    ty1 = MAX_INT
-    tx2 = -MAX_INT
-    ty2 = -MAX_INT
-    for box in boxlist:
-        (x1, y1, x2, y2) = box
-        tx1 = min(tx1, x1)
-        ty1 = min(ty1, y1)
-        tx2 = max(tx2, x2)
-        ty2 = max(ty2, y2)
+def get_max_box(box_list):
+    res = [
+        sys.maxsize,
+        sys.maxsize,
+        -sys.maxsize,
+        -sys.maxsize,
+    ]
+    for box in box_list:
+        for idx, (a, b) in enumerate(zip(res, box)):
+            if idx < 2:
+                res[idx] = min(a, b)
+            else:
+                res[idx] = max(a, b)
 
-    res = (tx1, ty1, tx2, ty2)
-    return res
+    return tuple(res)
 
 
 def mine_area(filename, ignore=0):
@@ -64,16 +65,16 @@ def mine_area(filename, ignore=0):
         raise PDFTextExtractionNotAllowed
     # 创建一个PDF资源管理器对象来存储共享资源
     # caching = False不缓存
-    rsrcmgr = PDFResourceManager(caching=False)
+    rsc_manager = PDFResourceManager(caching=False)
     # 创建一个PDF设备对象
-    laparams = LAParams()
+    la_params = LAParams()
     # 创建一个PDF页面聚合对象
-    device = PDFPageAggregator(rsrcmgr, laparams=laparams)
+    device = PDFPageAggregator(rsc_manager, laparams=la_params)
     # 创建一个PDF解析器对象
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    interpreter = PDFPageInterpreter(rsc_manager, device)
     # 处理文档当中的每个页面
 
-    pageboxlist = []
+    page_visible = []
 
     # doc.get_pages() 获取page列表
     # for i, page in enumerate(document.get_pages()):
@@ -85,11 +86,13 @@ def mine_area(filename, ignore=0):
         layout = device.get_result()
         # 这里layout是一个LTPage对象 里面存放着 这个page解析出的各种对象
         # 一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
-        boxlist = []
+        box_list = []
         for item in layout:
             box = item.bbox
 
-            if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
+            if isinstance(item, LTTextBoxHorizontal):
+                pass
+            elif isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
                 # text
                 logger.debug('text{}', item)
                 logger.debug(item.get_text())
@@ -114,21 +117,11 @@ def mine_area(filename, ignore=0):
             elif isinstance(item, LTCurve):
                 logger.debug('curve:{}', item)
 
-            boxlist.append(box)
+            box_list.append(box)
 
-        pageboxlist.append(boxlist)
-        # for x in layout:
-        #     #如果x是水平文本对象的话
-        #     if (isinstance(x, LTTextBoxHorizontal)):
-        #         # text=re.sub(replace,'',x.get_text())
-        #         text = x.get_text()
-        #         if len(text) != 0:
-        #             logger.debug text
+        visible_box = get_max_box(box_list)
+        logger.warning(visible_box)
+        page_visible.append(visible_box)
 
-    res = []
-    for boxlist in pageboxlist:
-        logger.warning(boxlist)
-        tmp = get_max_box(boxlist)
-        res.append(tmp)
-    logger.warning(res)
-    return res
+    logger.warning(page_visible)
+    return page_visible

@@ -3,3 +3,4 @@ PyPDF2
 # pdfminer
 pdfminer3
 loguru
+path
