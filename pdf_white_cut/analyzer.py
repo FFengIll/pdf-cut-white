@@ -47,7 +47,7 @@ def get_max_box(box_list):
     return tuple(res)
 
 
-def mine_area(filename, ignore=0):
+def analyse_area(filename, ignore=0):
     """
     use pdfminer to get the valid area of each page.
     all results are relative position!

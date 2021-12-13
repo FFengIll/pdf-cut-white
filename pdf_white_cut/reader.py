@@ -122,7 +122,3 @@ def mine_area(filename):
         tmp = get_max_box(boxlist)
         res.append(tmp)
     return res
-
-
-if __name__ == "__main__":
-    mine_area('test-complex2.pdf')

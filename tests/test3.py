@@ -1,7 +1,7 @@
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
 output = PdfFileWriter()
-input1 = PdfFileReader(open("input.pdf", "rb"))
+input1 = PdfFileReader(open("cases/input/input.pdf", "rb"))
 
 # print how many pages input1 has:
 print("document1.pdf has %d pages." % input1.getNumPages())
@@ -40,7 +40,7 @@ password = "secret"
 output.encrypt(password)
 
 # finally, write "output" to document-output.pdf
-outputStream = open("output.pdf", "wb")
+outputStream = open("cases/output/output.pdf", "wb")
 output.write(outputStream)
 
 if __name__ == "__main__":

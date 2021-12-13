@@ -1,6 +1,6 @@
 from PyPDF2 import PdfFileWriter, PdfFileReader
 
-pdf = PdfFileReader(open('input/input.pdf', 'rb'))
+pdf = PdfFileReader(open('cases/input/input.pdf', 'rb'))
 out = PdfFileWriter()
 
 for page in pdf.pages:
@@ -8,6 +8,6 @@ for page in pdf.pages:
     page.mediaBox.lowerLeft = (128, 232)
     out.addPage(page)
 
-ous = open('output.pdf', 'wb')
+ous = open('cases/output/output.pdf', 'wb')
 out.write(ous)
 ous.close()

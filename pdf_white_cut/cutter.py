@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 
@@ -6,32 +5,9 @@ import loguru
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from path import Path
 
-from pdf_white_cut import miner
+from pdf_white_cut import analyzer
 
 logger = loguru.logger
-logger.remove()
-logger.add(sys.stderr, level="INFO")
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", help="input file", action="store",
-                        default='', type=str, dest="input")
-    parser.add_argument("-o", help="output file", action="store",
-                        default='', type=str, dest="output")
-    parser.add_argument("-id", help="input directory", action="store",
-                        default='', type=str, dest="indir")
-    parser.add_argument("-od", help="output directory", action="store",
-                        default='', type=str, dest="outdir")
-    parser.add_argument("-t", "--test", help="run test",
-                        action="store_true", dest="test")
-    parser.add_argument("--ignore", help="ignore global",
-                        action="store", type=int, default=0, dest="ignore")
-    parser.add_argument("--verbose", help="choose verbose (DEBUG)",
-                        action="store_true", default=False, dest="verbose")
-    # parser.add_argument(nargs=argparse.REMAINDER, dest="value")
-    args = parser.parse_args()
-    return args
 
 
 def edit_box(page, useful_area):
@@ -71,7 +47,7 @@ def edit_box(page, useful_area):
     logger.info("fixed box: {}", box)
 
 
-def cut_white(source, target: str = None, ignore=0):
+def cut_pdf(source, target: str = None, ignore=0):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
@@ -79,6 +55,7 @@ def cut_white(source, target: str = None, ignore=0):
         target = 'output.pdf'
 
     if source == target:
+        logger.error("{} {}", source, target)
         raise Exception('input and output can not be the same!')
 
     try:
@@ -88,7 +65,7 @@ def cut_white(source, target: str = None, ignore=0):
 
             # MENTION: never move and change the sequence, since file IO
             # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
-            page_box_list = miner.mine_area(source, ignore=ignore)
+            page_box_list = analyzer.analyse_area(source, ignore=ignore)
             outpdf = PdfFileWriter()
 
             for idx in range(inpdf.getNumPages()):
@@ -119,21 +96,24 @@ def scan_files(folder, glob=""):
     files = []
     for item in Path(folder).listdir(glob):
         item: 'Path'
-        files.append(item.abspath())
+        files.append(item.basename())
     return files
 
 
-def batch(sources, targets, ignore=0):
-    if sources == targets:
+def batch_cut_pdf(indir, outdir, ignore=0):
+    if indir == outdir:
         raise Exception('input and output can not be the same!')
 
-    files = scan_files(sources, glob='*.pdf')
+    files = scan_files(indir, glob='*.pdf')
     logger.info(files)
 
-    if not os.path.exists(sources):
-        os.mkdir(sources)
+    if not os.path.exists(indir):
+        os.mkdir(indir)
 
+    logger.info("input dir: {}", indir)
+    logger.info("output dir: {}", outdir)
     for item in files:
-        source = os.path.join(sources, item)
-        target = os.path.join(targets, item)
-        cut_white(source, target, ignore=ignore)
+        source = Path.joinpath(indir, item)
+        target = Path.joinpath(outdir, item)
+        logger.info("{} {} ", source, target)
+        cut_pdf(source, target, ignore=ignore)

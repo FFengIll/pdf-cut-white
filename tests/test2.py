@@ -4,7 +4,7 @@ import os
 import sys
 from binascii import b2a_hex
 
-from pdf_white_cut.miner import *
+from pdf_white_cut.analyzer import *
 
 
 ###

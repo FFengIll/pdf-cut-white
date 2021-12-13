@@ -1,6 +1,8 @@
+import argparse
 import sys
 
-from pdf_white_cut.cutwhite import parse_args, logger, cut_white, batch
+from pdf_white_cut import parse_args, logger
+from pdf_white_cut.cutter import  cut_pdf, batch_cut_pdf
 from pdf_white_cut.test import tests
 
 if __name__ == "__main__":
@@ -10,10 +12,10 @@ if __name__ == "__main__":
         logger.add(sys.stderr, level="DEBUG")
 
     if args.input and args.output:
-        cut_white(args.input, args.output, args.ignore)
+        cut_pdf(args.input, args.output, args.ignore)
     elif args.input:
-        cut_white(args.input, None, args.ignore)
+        cut_pdf(args.input, None, args.ignore)
     elif args.indir and args.outdir:
-        batch(args.indir, args.outdir, args.ignore)
+        batch_cut_pdf(args.indir, args.outdir, args.ignore)
     elif args.test:
         tests()
