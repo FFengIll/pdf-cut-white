@@ -26,20 +26,20 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 # Usage
 
 - Install `python3`
-- Install requirements for dependencies.
-  - `pip3 install -r requirements.txt`（python3）
+- Install dependency `pip3 install -r requirements.txt`
 
 > may add `--user` for user mode
 
 Recommend to use `CLI (command line tool)`:
 
-- single file: `python cli.py -i in.pdf -o out.pdf`
-- folder: `python cli.py -id infolder -od outfolder`
-- sometimes: add `--ignore 1`
+- cut single pdf: `python cli.py -i in.pdf -o out.pdf`
+- cut all pdf just bellow dir: `python cli.py -id infolder -od outfolder`
+
+> MENTION: sometimes add `--ignore 1` if failed.
 
 If you **REALLY** wanna use the `GUI`:
 
-- base on PySide2, the official Qt for Python : ), so `pip install pyside2`
+- install PySide2, the official Qt for Python : ), `pip install pyside2`
 - if success, run `python gui.py`
 
 推荐使用命令行版本（命令如上），若希望使用GUI版本，请确保能够成功安装PySide2（命令如上）：
@@ -76,17 +76,13 @@ Known limitation:
 
 
 ## Bugfix & Feature
-- (fixed) missing literal or text
-- (added) GUI base on PySide2 (the official).
-- (fixed) failed for pdf which has been edited before - not fix the pos for the edited (pdfminer use relative pos).
-- (fixed) no CLI - argparse now.
+- (bugfix) path process error in batch_cut_pdf.
+- (bugfix) missing literal or text.
+- (feature) GUI base on PySide2 (the official).
+- (bugfix) failed for pdf which has been edited before - not fix the pos for the edited (pdfminer use relative pos).
+- (feature) CLI using argparse.
 
-## Dependecy
-require
-- PyPDF2 (edit the pdf box)
-- pdfminer (scan elements) (for python2)
-- pdfminer3 (scan elements) (for python3)
-
-optional
-- PySide2 (GUI only)
-- Pyinstaller (generate exe only)
+## Dependency
+- PyPDF2: edit the pdf box
+- pdfminer & pdfminer3: scan elements
+- PySide2: optional for GUI only

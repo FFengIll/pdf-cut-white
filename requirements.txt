@@ -1,6 +1,10 @@
+# required
 PyPDF2
 # remove python2 support
 # pdfminer
 pdfminer3
 loguru
 path
+
+# optional
+# PySide2
