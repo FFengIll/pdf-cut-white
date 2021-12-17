@@ -52,6 +52,9 @@ If you **REALLY** wanna use the `GUI`:
 
 注意：发现任何问题，请参看`issue`，若仍无法解决，请提新`issue`（请`--verbose`执行并附带log）。
 
+# Test
+`pytest -s tests/test.py`
+
 # Misc
 
 ## Limitation

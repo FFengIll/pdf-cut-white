@@ -4,7 +4,14 @@ import os
 import sys
 from binascii import b2a_hex
 
-from pdf_white_cut.analyzer import *
+from pdfminer3.converter import PDFPageAggregator
+from pdfminer3.pdfparser import PDFParser
+from pdfminer3.pdfdocument import PDFDocument, PDFNoOutlines
+from pdfminer3.pdfpage import PDFPage
+from pdfminer3.pdfpage import PDFTextExtractionNotAllowed
+from pdfminer3.pdfinterp import PDFResourceManager
+from pdfminer3.pdfinterp import PDFPageInterpreter
+from pdfminer3.layout import *
 
 
 ###
