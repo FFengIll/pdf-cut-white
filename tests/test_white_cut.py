@@ -1,5 +1,9 @@
 import loguru
 
+import sys
+
+sys.path.append('.')
+
 from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
 from pdf_white_cut.analyzer import analyse_area
 logger = loguru.logger
