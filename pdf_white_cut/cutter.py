@@ -17,10 +17,10 @@ def edit_box(page, useful_area):
     box = page.mediaBox
     # MENTION: media box is a visible area of the pdf page
     logger.info('media box: {}', page.mediaBox)
-    logger.debug(page.trimBox)
-    logger.debug(page.artBox)
-    logger.debug(page.cropBox)
-    logger.debug(page.bleedBox)
+    logger.info("trim box: {}",page.trimBox)
+    logger.info("art box: {}",page.artBox)
+    logger.info("crop box: {}",page.cropBox)
+    logger.info("bleed box: {}",page.bleedBox)
 
     # must translate relative position to absolute position
     # box position

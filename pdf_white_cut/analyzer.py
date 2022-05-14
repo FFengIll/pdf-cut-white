@@ -33,6 +33,51 @@ def get_max_box(box_list):
     return tuple(res)
 
 
+def extract_bbox(item):
+    """
+    this is the core process logic for the tool
+    which analyse all items in pdf type by type.
+    """
+    bbox = item.bbox
+
+    if isinstance(item, LTTextBoxHorizontal):
+        logger.warning('NotImplement for: text:{}', item)
+    elif isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
+        # text
+        logger.debug('text: {}', item)
+        logger.debug(item.get_text())
+        # TODO: here we ignored fonts and text line direction, may error in some cases
+        # the text has a height on y-axis, so we must modify it
+        bbox = bbox[0], bbox[1] - item.height, bbox[2], bbox[3]
+    elif isinstance(item, LTImage):
+        logger.warning('NotImplement for: image:{}', item)
+    elif isinstance(item, LTFigure):
+        logger.debug('figure:{}', item)
+        # for `LTFigure`, the bbox is modified in `PDFMiner`
+        # we should use the content item inside it to calculate real result
+        try:
+            # _objs is the original items, of course, only one item for `LTFigure`
+            figure = item._objs[0]
+            # get all the item inside the figure
+            children_bbox = [extract_bbox(item) for item in figure._objs]
+            return get_max_box(children_bbox)
+        except Exception as e:
+            logger.error("use default for error: {}", e)
+
+    elif isinstance(item, LTAnno):
+        logger.debug('NotImplement for: anno:{}', item)
+    elif isinstance(item, LTChar):
+        logger.debug('NotImplement for: char:{}', item)
+    elif isinstance(item, LTLine):
+        logger.debug('NotImplement for: line:{}', item)
+    elif isinstance(item, LTRect):
+        logger.debug('rect:{}', item)
+    elif isinstance(item, LTCurve):
+        logger.debug('curve:{}', item)
+
+    return bbox
+
+
 def analyse_area(filename, ignore=0):
     """
     use pdfminer to get the valid area of each page.
@@ -74,39 +119,19 @@ def analyse_area(filename, ignore=0):
         # 一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
         box_list = []
         for item in layout:
-            box = item.bbox
+            box = extract_bbox(item)
 
-            if isinstance(item, LTTextBoxHorizontal):
-                pass
-            elif isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
-                # text
-                logger.debug('text{}', item)
-                logger.debug(item.get_text())
-                # the text has a height on y axis, so we must modify it
-                box = box[0], box[1] - item.height, box[2], box[3]
-            elif isinstance(item, LTImage):
-                logger.debug('image:{}', item)
-            elif isinstance(item, LTFigure):
-                logger.debug('figure:{}', item)
-            elif isinstance(item, LTAnno):
-                logger.debug('anno:{}', item)
-            elif isinstance(item, LTChar):
-                logger.debug('char:{}', item)
-            elif isinstance(item, LTLine):
-                logger.debug('line:{}', item)
-            elif isinstance(item, LTRect):
+            # extra process for `LTRect` with `ignore`
+            if isinstance(item, LTRect):
                 logger.debug('rect:{}', item)
                 # FIXME: some pdf has a global LTRect, case by case
                 if ignore > 0:
                     ignore -= 1
                     continue
-            elif isinstance(item, LTCurve):
-                logger.debug('curve:{}', item)
-
             box_list.append(box)
 
         visible_box = get_max_box(box_list)
-        logger.warning(visible_box)
+        logger.warning("visible: {}", visible_box)
         page_visible.append(visible_box)
 
     logger.warning(page_visible)
