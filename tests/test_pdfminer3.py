@@ -24,7 +24,7 @@ def with_pdf(pdf_doc, fn, pdf_pwd, *args):
     result = None
     try:
         # open the pdf file
-        fp = open(pdf_doc, 'rb')
+        fp = open(pdf_doc, "rb")
         # create a parser object associated with the file object
         parser = PDFParser(fp)
         # create a PDFDocument object that stores the document structure
@@ -49,6 +49,7 @@ def with_pdf(pdf_doc, fn, pdf_pwd, *args):
 ### Table of Contents
 ###
 
+
 def _parse_toc(doc):
     """With an open PDFDocument object, get the table of contents (toc) data
     [this is a higher-order function to be passed to with_pdf()]"""
@@ -62,7 +63,7 @@ def _parse_toc(doc):
     return toc
 
 
-def get_toc(pdf_doc, pdf_pwd=''):
+def get_toc(pdf_doc, pdf_pwd=""):
     """Return the table of contents (toc), if any, for this pdf file"""
     return with_pdf(pdf_doc, _parse_toc, pdf_pwd)
 
@@ -71,7 +72,8 @@ def get_toc(pdf_doc, pdf_pwd=''):
 ### Extracting Images
 ###
 
-def write_file(folder, filename, filedata, flags='w'):
+
+def write_file(folder, filename, filedata, flags="w"):
     """Write the file data to the folder and filename combination
     (flags: 'w' for write text, 'wb' for write binary, use 'a' instead of 'w' for append)"""
     result = False
@@ -90,14 +92,14 @@ def determine_image_type(stream_first_4_bytes):
     """Find out the image file type based on the magic number comparison of the first 4 (or 2) bytes"""
     file_type = None
     bytes_as_hex = b2a_hex(stream_first_4_bytes)
-    if bytes_as_hex.startswith('ffd8'):
-        file_type = '.jpeg'
-    elif bytes_as_hex == '89504e47':
-        file_type = '.png'
-    elif bytes_as_hex == '47494638':
-        file_type = '.gif'
-    elif bytes_as_hex.startswith('424d'):
-        file_type = '.bmp'
+    if bytes_as_hex.startswith("ffd8"):
+        file_type = ".jpeg"
+    elif bytes_as_hex == "89504e47":
+        file_type = ".png"
+    elif bytes_as_hex == "47494638":
+        file_type = ".gif"
+    elif bytes_as_hex.startswith("424d"):
+        file_type = ".bmp"
     return file_type
 
 
@@ -109,8 +111,8 @@ def save_image(lt_image, page_number, images_folder):
         if file_stream:
             file_ext = determine_image_type(file_stream[0:4])
             if file_ext:
-                file_name = ''.join([str(page_number), '_', lt_image.name, file_ext])
-                if write_file(images_folder, file_name, file_stream, flags='wb'):
+                file_name = "".join([str(page_number), "_", lt_image.name, file_ext])
+                if write_file(images_folder, file_name, file_stream, flags="wb"):
                     result = file_name
     return result
 
@@ -119,7 +121,8 @@ def save_image(lt_image, page_number, images_folder):
 ### Extracting Text
 ###
 
-def to_bytestring(s, enc='utf-8'):
+
+def to_bytestring(s, enc="utf-8"):
     """Convert the given unicode string to a bytestring, using the standard encoding,
     unless it's already a bytestring"""
     if s:
@@ -158,7 +161,9 @@ def parse_lt_objs(lt_objs, page_number, images_folder, text=[]):
     """Iterate through the list of LT* objects and capture the text or image data contained in each"""
     text_content = []
 
-    page_text = {}  # k=(x0, x1) of the bbox, v=list of text strings within that bbox width (physical column)
+    page_text = (
+        {}
+    )  # k=(x0, x1) of the bbox, v=list of text strings within that bbox width (physical column)
     for lt_obj in lt_objs:
         if isinstance(lt_obj, LTTextBox) or isinstance(lt_obj, LTTextLine):
             # text, so arrange is logically based on its column width
@@ -168,24 +173,34 @@ def parse_lt_objs(lt_objs, page_number, images_folder, text=[]):
             saved_file = save_image(lt_obj, page_number, images_folder)
             if saved_file:
                 # use html style <img /> tag to mark the position of the image within the text
-                text_content.append('<img src="' + os.path.join(images_folder, saved_file) + '" />')
+                text_content.append(
+                    '<img src="' + os.path.join(images_folder, saved_file) + '" />'
+                )
             else:
-                print("error saving image on page", page_number, lt_obj.__repr__, file=sys.stderr)
+                print(
+                    "error saving image on page",
+                    page_number,
+                    lt_obj.__repr__,
+                    file=sys.stderr,
+                )
         elif isinstance(lt_obj, LTFigure):
             # LTFigure objects are containers for other LT* objects, so recurse through the children
-            text_content.append(parse_lt_objs(lt_obj, page_number, images_folder, text_content))
+            text_content.append(
+                parse_lt_objs(lt_obj, page_number, images_folder, text_content)
+            )
 
     for k, v in sorted([(key, value) for (key, value) in list(page_text.items())]):
         # sort the page_text hash by the keys (x0,x1 values of the bbox),
         # which produces a top-down, left-to-right sequence of related columns
-        text_content.append(''.join(v))
+        text_content.append("".join(v))
 
-    return 'n'.join(text_content)
+    return "n".join(text_content)
 
 
 ###
 ### Processing Pages
 ###
+
 
 def _parse_pages(doc, images_folder):
     """With an open PDFDocument object, get the pages and parse each one
@@ -206,12 +221,12 @@ def _parse_pages(doc, images_folder):
     return text_content
 
 
-def get_pages(pdf_doc, pdf_pwd='', images_folder='/tmp'):
+def get_pages(pdf_doc, pdf_pwd="", images_folder="/tmp"):
     """Process each of the pages in this pdf file and return a list of strings representing the text found in each page"""
     return with_pdf(pdf_doc, _parse_pages, pdf_pwd, *tuple([images_folder]))
 
 
-a = open('a.txt', 'a')
-for i in get_pages('/home/jamespei/nova.pdf'):
+a = open("a.txt", "a")
+for i in get_pages("/home/jamespei/nova.pdf"):
     a.write(i)
 a.close()

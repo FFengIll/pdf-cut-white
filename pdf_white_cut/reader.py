@@ -38,7 +38,7 @@ def mine_area(filename):
     pageboxlist = []
 
     # 打开一个pdf文件
-    with open(filename, 'rb') as fp:
+    with open(filename, "rb") as fp:
         # 创建一个PDF文档解析器对象
         parser = PDFParser(fp)
         # 创建一个PDF文档对象存储文档结构
@@ -74,24 +74,24 @@ def mine_area(filename):
                 boxlist.append(box)
 
                 if isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
-                    print('text:{}'.format(item))
+                    print("text:{}".format(item))
                     print(item.height)
                     print(item.get_text())
                     count += 1
                 elif isinstance(item, LTImage):
-                    print('image:{}'.format(item))
+                    print("image:{}".format(item))
                 elif isinstance(item, LTFigure):
-                    print('figure:{}'.format(item))
+                    print("figure:{}".format(item))
                 elif isinstance(item, LTAnno):
-                    print('anno:{}'.format(item))
+                    print("anno:{}".format(item))
                 elif isinstance(item, LTChar):
-                    print('char:{}'.format(item))
+                    print("char:{}".format(item))
                 elif isinstance(item, LTLine):
-                    print('line:{}'.format(item))
+                    print("line:{}".format(item))
                 elif isinstance(item, LTRect):
-                    print('rect:{}'.format(item))
+                    print("rect:{}".format(item))
                 elif isinstance(item, LTCurve):
-                    print('curve:{}'.format(item))
+                    print("curve:{}".format(item))
 
             pageboxlist.append(boxlist)
             # for x in layout:

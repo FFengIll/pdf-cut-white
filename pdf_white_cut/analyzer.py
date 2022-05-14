@@ -41,18 +41,18 @@ def extract_bbox(item):
     bbox = item.bbox
 
     if isinstance(item, LTTextBoxHorizontal):
-        logger.warning('NotImplement for: text:{}', item)
+        logger.warning("NotImplement for: text:{}", item)
     elif isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
         # text
-        logger.debug('text: {}', item)
+        logger.debug("text: {}", item)
         logger.debug(item.get_text())
         # TODO: here we ignored fonts and text line direction, may error in some cases
         # the text has a height on y-axis, so we must modify it
         bbox = bbox[0], bbox[1] - item.height, bbox[2], bbox[3]
     elif isinstance(item, LTImage):
-        logger.warning('NotImplement for: image:{}', item)
+        logger.warning("NotImplement for: image:{}", item)
     elif isinstance(item, LTFigure):
-        logger.debug('figure:{}', item)
+        logger.debug("figure:{}", item)
         # for `LTFigure`, the bbox is modified in `PDFMiner`
         # we should use the content item inside it to calculate real result
         try:
@@ -65,15 +65,15 @@ def extract_bbox(item):
             logger.error("use default for error: {}", e)
 
     elif isinstance(item, LTAnno):
-        logger.debug('NotImplement for: anno:{}', item)
+        logger.debug("NotImplement for: anno:{}", item)
     elif isinstance(item, LTChar):
-        logger.debug('NotImplement for: char:{}', item)
+        logger.debug("NotImplement for: char:{}", item)
     elif isinstance(item, LTLine):
-        logger.debug('NotImplement for: line:{}', item)
+        logger.debug("NotImplement for: line:{}", item)
     elif isinstance(item, LTRect):
-        logger.debug('rect:{}', item)
+        logger.debug("rect:{}", item)
     elif isinstance(item, LTCurve):
-        logger.debug('curve:{}', item)
+        logger.debug("curve:{}", item)
 
     return bbox
 
@@ -84,7 +84,7 @@ def analyse_area(filename, ignore=0):
     all results are relative position!
     """
     # 打开一个pdf文件
-    fp = open(filename, 'rb')
+    fp = open(filename, "rb")
     # 创建一个PDF文档解析器对象
     parser = PDFParser(fp)
     # 创建一个PDF文档对象存储文档结构
@@ -123,7 +123,7 @@ def analyse_area(filename, ignore=0):
 
             # extra process for `LTRect` with `ignore`
             if isinstance(item, LTRect):
-                logger.debug('rect:{}', item)
+                logger.debug("rect:{}", item)
                 # FIXME: some pdf has a global LTRect, case by case
                 if ignore > 0:
                     ignore -= 1
