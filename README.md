@@ -1,6 +1,6 @@
 # pdf-cut-white
 
-Please redo `pip3 install -r requirements.txt` since dependencies changed (see [changelog](#Changelog)
+Please redo `pip3 install -r requirements.txt` since dependencies changed (see [changelog](#Changelog) ).
 
 # Motivation
 
