@@ -38,16 +38,13 @@ def edit_box(page, useful_area):
     box.lowerLeft = (max(bx1, x1 + bx1), max(by1, y1 + by1))
     box.upperRight = (min(bx2, x2 + bx1), min(by2, y2 + by1))
 
-    logger.info("fixed box: {}", box)
+    logger.info("bbox after cut: {}", box)
 
 
-def cut_pdf(source, target: str = None, ignore=0):
+def cut_pdf(source: str, target: str, ignore=0):
     """
     cut the white slide of the input pdf file, and output a new pdf file.
     """
-    if target is None:
-        target = "output.pdf"
-
     if source == target:
         logger.error("{} {}", source, target)
         raise Exception("input and output can not be the same!")

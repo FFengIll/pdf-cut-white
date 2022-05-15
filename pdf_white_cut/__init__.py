@@ -8,13 +8,18 @@ logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 
-def parse_args():
+def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-i", help="input file", action="store", default="", type=str, dest="input"
     )
     parser.add_argument(
-        "-o", help="output file", action="store", default="", type=str, dest="output"
+        "-o",
+        help="output file (DEFAULT: output.pdf)",
+        action="store",
+        default="output.pdf",
+        type=str,
+        dest="output",
     )
     parser.add_argument(
         "-id",
@@ -45,11 +50,15 @@ def parse_args():
     )
     parser.add_argument(
         "--verbose",
-        help="choose verbose (DEBUG)",
+        help="verbose (DEBUG)",
         action="store_true",
         default=False,
         dest="verbose",
     )
+    return parser
+
+
+def parse_args():
     # parser.add_argument(nargs=argparse.REMAINDER, dest="value")
-    args = parser.parse_args()
+    args = get_parser().parse_args()
     return args

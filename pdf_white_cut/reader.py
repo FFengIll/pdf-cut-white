@@ -13,11 +13,10 @@ from pdfminer3.layout import *
 
 
 def get_max_box(boxlist):
-    MAX_INT = 99999
-    tx1 = MAX_INT
-    ty1 = MAX_INT
-    tx2 = -MAX_INT
-    ty2 = -MAX_INT
+    tx1 = INF
+    ty1 = INF
+    tx2 = -INF
+    ty2 = -INF
     for box in boxlist:
         (x1, y1, x2, y2) = box
         tx1 = min(tx1, x1)
@@ -77,7 +76,6 @@ def mine_area(filename):
                     print("text:{}".format(item))
                     print(item.height)
                     print(item.get_text())
-                    count += 1
                 elif isinstance(item, LTImage):
                     print("image:{}".format(item))
                 elif isinstance(item, LTFigure):

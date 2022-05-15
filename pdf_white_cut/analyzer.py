@@ -40,19 +40,20 @@ def extract_bbox(item):
     """
     bbox = item.bbox
 
-    if isinstance(item, LTTextBoxHorizontal):
-        logger.warning("NotImplement for: text:{}", item)
-    elif isinstance(item, LTTextBox) or isinstance(item, LTTextLine):
-        # text
-        logger.debug("text: {}", item)
-        logger.debug(item.get_text())
+    if isinstance(item, LTTextBox):
+        logger.warning("NotImplemented for: TextBox:{}", item)
+    elif isinstance(item, LTTextLine):
+        # there is 2 types of `LTTextLine`: horizontal and vertical
+        logger.debug(
+            "analyse TextLine: {} {}", item, item.get_text().encode("unicode_escape")
+        )
         # TODO: here we ignored fonts and text line direction, may error in some cases
-        # the text has a height on y-axis, so we must modify it
+        # the text has a height on y-axis, so we must modify it to make the whole text visible
         bbox = bbox[0], bbox[1] - item.height, bbox[2], bbox[3]
     elif isinstance(item, LTImage):
-        logger.warning("NotImplement for: image:{}", item)
+        logger.warning("NotImplemented for: image:{}", item)
     elif isinstance(item, LTFigure):
-        logger.debug("figure:{}", item)
+        logger.debug("analyse figure:{}", item)
         # for `LTFigure`, the bbox is modified in `PDFMiner`
         # we should use the content item inside it to calculate real result
         try:
@@ -65,15 +66,15 @@ def extract_bbox(item):
             logger.error("use default for error: {}", e)
 
     elif isinstance(item, LTAnno):
-        logger.debug("NotImplement for: anno:{}", item)
+        logger.debug("NotImplemented for: anno:{}", item)
     elif isinstance(item, LTChar):
-        logger.debug("NotImplement for: char:{}", item)
+        logger.debug("NotImplemented for: char:{}", item)
     elif isinstance(item, LTLine):
-        logger.debug("NotImplement for: line:{}", item)
+        logger.debug("(as it is) line:{}", item)
     elif isinstance(item, LTRect):
-        logger.debug("rect:{}", item)
+        logger.debug("(as it is) rect:{}", item)
     elif isinstance(item, LTCurve):
-        logger.debug("curve:{}", item)
+        logger.debug("(as it is) curve:{}", item)
 
     return bbox
 
@@ -131,8 +132,8 @@ def analyse_area(filename, ignore=0):
             box_list.append(box)
 
         visible_box = get_max_box(box_list)
-        logger.warning("visible: {}", visible_box)
+        logger.warning("visible bbox: {}", visible_box)
         page_visible.append(visible_box)
 
-    logger.warning(page_visible)
+    logger.warning("visible bbox for the page: {}", page_visible)
     return page_visible
