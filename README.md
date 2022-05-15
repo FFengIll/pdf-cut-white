@@ -1,5 +1,7 @@
 # pdf-cut-white
 
+Please redo `pip3 install -r requirements.txt` since dependencies changed (see [changelog](#Changelog)
+
 # Motivation
 
 While latex, it takes time to `cut the useless white part of pdf`, then, here comes a tool for it.
@@ -80,8 +82,9 @@ Known limitation:
 - 有部分元素未处理
   - 可以参看`pdf_white_cut/analyzer.py::extract_bbox`，部分元素使用了原始的 bbox，可能导致结果保留的内容（白边）过多，对此请 issue 反馈，并附带用例和 log。
 
-## Bugfix & Feature
+## Changelog
 
+- (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**)
 - (bugfix) missing `LTFigure` analysis.
 - (bugfix) path process error in batch_cut_pdf.
 - (bugfix) missing `LTTextBox` or `LTTextLine` analysis.
@@ -92,5 +95,6 @@ Known limitation:
 ## Dependency
 
 - PyPDF2: edit the pdf box
-- pdfminer & pdfminer3: scan elements
+- ~~pdfminer & pdfminer3: scan elements~~
+- pdfminer.six: scan pdf elements
 - PySide2: optional for GUI only
