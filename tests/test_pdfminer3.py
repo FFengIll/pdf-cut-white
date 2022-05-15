@@ -4,14 +4,14 @@ import os
 import sys
 from binascii import b2a_hex
 
-from pdfminer3.converter import PDFPageAggregator
-from pdfminer3.pdfparser import PDFParser
-from pdfminer3.pdfdocument import PDFDocument, PDFNoOutlines
-from pdfminer3.pdfpage import PDFPage
-from pdfminer3.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer3.pdfinterp import PDFResourceManager
-from pdfminer3.pdfinterp import PDFPageInterpreter
-from pdfminer3.layout import *
+from pdfminer.converter import PDFPageAggregator
+from pdfminer.pdfparser import PDFParser
+from pdfminer.pdfdocument import PDFDocument, PDFNoOutlines
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfpage import PDFTextExtractionNotAllowed
+from pdfminer.pdfinterp import PDFResourceManager
+from pdfminer.pdfinterp import PDFPageInterpreter
+from pdfminer.layout import *
 
 
 ###

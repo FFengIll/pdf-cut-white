@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 import sys
 
-from pdfminer3.converter import PDFPageAggregator
-from pdfminer3.pdfparser import PDFParser
-from pdfminer3.pdfdocument import PDFDocument
-from pdfminer3.pdfpage import PDFPage
-from pdfminer3.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer3.pdfinterp import PDFResourceManager
-from pdfminer3.pdfinterp import PDFPageInterpreter
-from pdfminer3.layout import *
+from pdfminer.converter import PDFPageAggregator
+from pdfminer.pdfparser import PDFParser
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfpage import PDFTextExtractionNotAllowed
+from pdfminer.pdfinterp import PDFResourceManager
+from pdfminer.pdfinterp import PDFPageInterpreter
+from pdfminer.layout import *
 
 import loguru
 
