@@ -8,9 +8,9 @@ import os
 import sys
 import traceback
 
-import cutwhite
 from PySide2 import QtCore, QtWidgets
-from utils import get_logger
+
+from pdf_white_cut import cutter
 
 logger = get_logger(__name__, level="INFO")
 
@@ -137,7 +137,7 @@ class Window(QtWidgets.QDialog):
             output = os.path.join(outdir, name)
 
             try:
-                cutwhite.cut_white(str(input), str(output))
+                cutter.cut_pdf(str(input), str(output))
             except Exception as e:
                 print("error while cut white")
                 traceback.print_exc()

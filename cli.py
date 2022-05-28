@@ -1,10 +1,13 @@
 import sys
 
-from pdf_white_cut import parse_args, logger, get_parser
+from loguru import logger
+
 from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
+from pdf_white_cut.parser import get_parser
 
 if __name__ == "__main__":
-    args = parse_args()
+    parser = get_parser()
+    args = get_parser().parse_args()
     if args.verbose:
         logger.remove()
         logger.add(sys.stderr, level="DEBUG")

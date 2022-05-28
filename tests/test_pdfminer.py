@@ -5,20 +5,17 @@ import sys
 from binascii import b2a_hex
 
 from pdfminer.converter import PDFPageAggregator
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument, PDFNoOutlines
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.pdfinterp import PDFPageInterpreter
 from pdfminer.layout import *
+from pdfminer.pdfdocument import PDFDocument, PDFNoOutlines
+from pdfminer.pdfinterp import PDFPageInterpreter
+from pdfminer.pdfinterp import PDFResourceManager
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfparser import PDFParser
 
 
 ###
 ### pdf-miner requirements
 ###
-
-
 def with_pdf(pdf_doc, fn, pdf_pwd, *args):
     """Open the pdf document, and apply the function, returning the results"""
     result = None
@@ -48,8 +45,6 @@ def with_pdf(pdf_doc, fn, pdf_pwd, *args):
 ###
 ### Table of Contents
 ###
-
-
 def _parse_toc(doc):
     """With an open PDFDocument object, get the table of contents (toc) data
     [this is a higher-order function to be passed to with_pdf()]"""
@@ -71,8 +66,6 @@ def get_toc(pdf_doc, pdf_pwd=""):
 ###
 ### Extracting Images
 ###
-
-
 def write_file(folder, filename, filedata, flags="w"):
     """Write the file data to the folder and filename combination
     (flags: 'w' for write text, 'wb' for write binary, use 'a' instead of 'w' for append)"""
@@ -120,8 +113,6 @@ def save_image(lt_image, page_number, images_folder):
 ###
 ### Extracting Text
 ###
-
-
 def to_bytestring(s, enc="utf-8"):
     """Convert the given unicode string to a bytestring, using the standard encoding,
     unless it's already a bytestring"""
@@ -200,8 +191,6 @@ def parse_lt_objs(lt_objs, page_number, images_folder, text=[]):
 ###
 ### Processing Pages
 ###
-
-
 def _parse_pages(doc, images_folder):
     """With an open PDFDocument object, get the pages and parse each one
     [this is a higher-order function to be passed to with_pdf()]"""
@@ -226,7 +215,8 @@ def get_pages(pdf_doc, pdf_pwd="", images_folder="/tmp"):
     return with_pdf(pdf_doc, _parse_pages, pdf_pwd, *tuple([images_folder]))
 
 
-a = open("a.txt", "a")
-for i in get_pages("/home/jamespei/nova.pdf"):
-    a.write(i)
-a.close()
+if __name__ == "__main__":
+    a = open("a.txt", "a")
+    for i in get_pages("/home/jamespei/nova.pdf"):
+        a.write(i)
+    a.close()

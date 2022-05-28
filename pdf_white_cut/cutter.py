@@ -1,16 +1,13 @@
 import os
-import sys
 
-import loguru
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from path import Path
 
 from pdf_white_cut import analyzer
+from pdf_white_cut.logger import logger
 
-logger = loguru.logger
 
-
-def edit_box(page, useful_area):
+def edit_page_box(page, visible_box):
     """
     cut the box by setting new position (relative position)
     """
@@ -30,9 +27,9 @@ def edit_box(page, useful_area):
     bx2, by2 = float(bx2), float(by2)
 
     # visible area
-    (x1, y1, x2, y2) = useful_area
+    (x1, y1, x2, y2) = visible_box
 
-    # MENTION: all of the box is relative position, so we need to fix the position, choose the smaller area
+    # MENTION: all boxes is relative position, so we need to fix the position, choose the smaller area
     logger.info("origin box: {}", box)
 
     box.lowerLeft = (max(bx1, x1 + bx1), max(by1, y1 + by1))
@@ -50,22 +47,24 @@ def cut_pdf(source: str, target: str, ignore=0):
         raise Exception("input and output can not be the same!")
 
     try:
+        # MENTION: never move and change the sequence, since file IO.
+        # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
+        # analyses whole pdf at one time since it use `pdfminer` (not `PyPDF2`)
+        page_box_list = analyzer.analyse_pdf(source, ignore=ignore)
+
+        # edit pdf by visible box and output it
         with open(source, "rb") as infd:
             logger.info("process file: {}", source)
             inpdf = PdfFileReader(infd)
-
-            # MENTION: never move and change the sequence, since file IO
-            # get the visible area of the page, aka the box scale. res=[(x1,y1,x2,y2)]
-            page_box_list = analyzer.analyse_area(source, ignore=ignore)
             outpdf = PdfFileWriter()
 
             for idx in range(inpdf.getNumPages()):
                 # scale is the max box of the page
-                scale = page_box_list[idx]
-                logger.info("origin scale: {}", scale)
+                box = page_box_list[idx]
+                logger.info("origin scale: {}", box)
 
                 page = inpdf.getPage(idx)
-                edit_box(page, scale)
+                edit_page_box(page, box)
                 outpdf.addPage(page)
 
             with open(target, "wb") as outfd:

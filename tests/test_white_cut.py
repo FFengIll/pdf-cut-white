@@ -5,7 +5,7 @@ import sys
 sys.path.append(".")
 
 from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
-from pdf_white_cut.analyzer import analyse_area
+from pdf_white_cut.analyzer import analyse_pdf
 
 logger = loguru.logger
 
@@ -23,7 +23,7 @@ def test_batch_cut_pdf():
 
 
 def test_analyzer():
-    analyse_area("test-complex2.pdf")
+    analyse_pdf("test-complex2.pdf")
 
 
 def test_rw_pdf():

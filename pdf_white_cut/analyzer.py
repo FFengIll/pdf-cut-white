@@ -3,17 +3,15 @@
 import sys
 
 from pdfminer.converter import PDFPageAggregator
-from pdfminer.pdfparser import PDFParser
+from pdfminer.layout import *
 from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfinterp import PDFPageInterpreter
+from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfpage import PDFTextExtractionNotAllowed
-from pdfminer.pdfinterp import PDFResourceManager
-from pdfminer.pdfinterp import PDFPageInterpreter
-from pdfminer.layout import *
+from pdfminer.pdfparser import PDFParser
 
-import loguru
-
-logger = loguru.logger
+from pdf_white_cut.logger import logger
 
 
 def get_max_box(box_list):
@@ -33,7 +31,7 @@ def get_max_box(box_list):
     return tuple(res)
 
 
-def extract_bbox(item):
+def extract_box(item):
     """
     this is the core process logic for the tool
     which analyse all items in pdf type by type.
@@ -60,7 +58,7 @@ def extract_bbox(item):
             # _objs is the original items, of course, only one item for `LTFigure`
             figure = item._objs[0]
             # get all the item inside the figure
-            children_bbox = [extract_bbox(item) for item in figure._objs]
+            children_bbox = [extract_box(item) for item in figure._objs]
             return get_max_box(children_bbox)
         except Exception as e:
             logger.error("use default for error: {}", e)
@@ -79,7 +77,7 @@ def extract_bbox(item):
     return bbox
 
 
-def analyse_area(filename, ignore=0):
+def analyse_pdf(filename, ignore=0):
     """
     use pdfminer to get the valid area of each page.
     all results are relative position!
@@ -106,7 +104,7 @@ def analyse_area(filename, ignore=0):
     interpreter = PDFPageInterpreter(rsc_manager, device)
     # 处理文档当中的每个页面
 
-    page_visible = []
+    visible_boxs = []
 
     # doc.get_pages() 获取page列表
     # for i, page in enumerate(document.get_pages()):
@@ -120,9 +118,9 @@ def analyse_area(filename, ignore=0):
         # 一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
         box_list = []
         for item in layout:
-            box = extract_bbox(item)
+            box = extract_box(item)
 
-            # extra process for `LTRect` with `ignore`
+            # another process only for `LTRect` with `ignore`
             if isinstance(item, LTRect):
                 logger.debug("rect:{}", item)
                 # FIXME: some pdf has a global LTRect, case by case
@@ -133,7 +131,7 @@ def analyse_area(filename, ignore=0):
 
         visible_box = get_max_box(box_list)
         logger.warning("visible bbox: {}", visible_box)
-        page_visible.append(visible_box)
+        visible_boxs.append(visible_box)
 
-    logger.warning("visible bbox for the page: {}", page_visible)
-    return page_visible
+    logger.warning("visible bbox for the page: {}", visible_boxs)
+    return visible_boxs
