@@ -25,7 +25,7 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 
 # Usage
 
-Env prepare
+Prepare env
 
 - install `python3`
 - install dependency `pip3 install -r requirements.txt`, or `pip3 install -r requirements.txt --user`
@@ -37,7 +37,7 @@ Recommend to use `CLI (command line tool)`:
 
 > MENTION: sometimes add `--ignore 1` if output is not the wanted.
 
-If you **REALLY** wanna use the `GUI`:
+If you **REALLY** wanna use `GUI`:
 
 - install PySide2, the official Qt for Python : ), `pip install pyside2`
 - if success, run `python gui.py`
