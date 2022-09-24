@@ -85,7 +85,7 @@ Known limitation:
 
 ## Changelog
 
-- (feature) bump to PySide6 for GUI with QT.
+- (dependency) bump to PySide6 for GUI with QT.
 - (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**).
 - (bugfix) missing `LTFigure` analysis.
 - (bugfix) path process error in batch_cut_pdf.
