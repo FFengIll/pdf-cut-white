@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # encoding=utf-8
 """
-this gui based on PySide2 (QT for Python) and used the example - findfiles.pyw as template.
+this gui based on PySide (QT for Python) and used the example - findfiles.pyw as template.
+see for details: https://wiki.qt.io/Qt_for_Python
 """
 
 import os
