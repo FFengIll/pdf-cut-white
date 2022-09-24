@@ -1,6 +1,6 @@
 import sys
 
-from loguru import logger
+from pdf_white_cut.logger import logger
 
 from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
 from pdf_white_cut.parser import get_parser
