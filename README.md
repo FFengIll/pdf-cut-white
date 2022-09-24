@@ -27,7 +27,7 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 
 Prepare env
 
-- install `python3`
+- install `python3` (python 3.6 or above)
 - install dependency `pip3 install -r requirements.txt`, or `pip3 install -r requirements.txt --user`
 
 Recommend to use `CLI (command line tool)`:
@@ -39,10 +39,11 @@ Recommend to use `CLI (command line tool)`:
 
 If you **REALLY** wanna use `GUI`:
 
-- install PySide2, the official Qt for Python : ), `pip install pyside2`
+- install PySide6, the official Qt for Python : ), `pip install PySide6==6.3.2`
 - if success, run `python gui.py`
 
-推荐使用命令行版本（命令如上），若希望使用 GUI 版本，请确保能够成功安装 PySide2（命令如上）：
+推荐使用命令行版本（命令如上），至少需要安装python3.6。
+若希望使用 GUI 版本，请确保能够成功安装 PySide6（命令如上）：
 
 - 启用工具，选择输入文件夹和输出文件夹（必须使用不同的文件夹防止源文件覆盖）
 - 扫描 pdf 文件（GUI 支持在列表中二次选择 PDF）（注意：仅会扫描一级目录，而不会扫描子目录）
@@ -84,7 +85,8 @@ Known limitation:
 
 ## Changelog
 
-- (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**)
+- (feature) bump to PySide6 for GUI with QT.
+- (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**).
 - (bugfix) missing `LTFigure` analysis.
 - (bugfix) path process error in batch_cut_pdf.
 - (bugfix) missing `LTTextBox` or `LTTextLine` analysis.
@@ -97,4 +99,5 @@ Known limitation:
 - PyPDF2: edit the pdf box
 - ~~pdfminer & pdfminer3: scan elements~~
 - pdfminer.six: scan pdf elements
-- PySide2: optional for GUI only
+- ~~PySide2: optional for GUI only~~
+- PySide6: optional for GUI only
