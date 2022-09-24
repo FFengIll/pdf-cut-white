@@ -8,11 +8,14 @@ import os
 import sys
 import traceback
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QLabel
 
 from pdf_white_cut import cutter
+from pdf_white_cut.logger import logger
 
-logger = get_logger(__name__, level="INFO")
+logger.warning("GUI is not stable enough, recommand to use cli.")
 
 
 class Window(QtWidgets.QDialog):
