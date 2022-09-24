@@ -2,14 +2,14 @@
 
 Please redo `pip3 install -r requirements.txt` since dependencies changed (see [changelog](#Changelog) ).
 
+**这个文档已经够短了，请务必读一遍先。**
+
 # Motivation
 
 While latex, it takes time to `cut the useless white part of pdf`, then, here comes a tool for it.
 
 在使用 Latex 书写论文时（或者其他时刻），花费了不少的时间处理 PDF 图表——`裁剪不必要的图表白边`。
 所幸就写个工具自动完成吧——自动化且精准。
-
-这个文档已经够短了，请务必读一遍先。
 
 # Feature
 
