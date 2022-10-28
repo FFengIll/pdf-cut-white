@@ -67,6 +67,7 @@ def cut_pdf(source: str, target: str, ignore=0):
                 edit_page_box(page, box)
                 outpdf.addPage(page)
 
+            Path(target).dirname().makedirs_p()
             with open(target, "wb") as outfd:
                 outpdf.write(outfd)
                 logger.info("output file: {}", target)
