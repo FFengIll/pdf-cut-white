@@ -22,9 +22,7 @@ def edit_page_box(page, visible_box):
     # must translate relative position to absolute position
     # box position
     bx1, by1 = box.lower_left
-    bx1, by1 = float(bx1), float(by1)
     bx2, by2 = box.upper_right
-    bx2, by2 = float(bx2), float(by2)
 
     # visible area
     (x1, y1, x2, y2) = visible_box
