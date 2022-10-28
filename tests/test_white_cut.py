@@ -33,8 +33,8 @@ def test_rw_pdf():
     out = PdfFileWriter()
 
     for page in pdf.pages:
-        page.mediaBox.upperRight = (580, 800)
-        page.mediaBox.lowerLeft = (128, 232)
+        page.mediaBox.upper_right = (580, 800)
+        page.mediaBox.lower_left = (128, 232)
         out.addPage(page)
 
     ous = open("cases/output/output.pdf", "wb")
