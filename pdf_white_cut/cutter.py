@@ -1,6 +1,6 @@
 import os
 
-from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfWriter, PdfReader
 from path import Path
 
 from pdf_white_cut import analyzer
@@ -11,19 +11,19 @@ def edit_page_box(page, visible_box):
     """
     cut the box by setting new position (relative position)
     """
-    box = page.mediaBox
+    box = page.mediabox
     # MENTION: media box is a visible area of the pdf page
-    logger.info("media box: {}", page.mediaBox)
-    logger.info("trim box: {}", page.trimBox)
-    logger.info("art box: {}", page.artBox)
-    logger.info("crop box: {}", page.cropBox)
-    logger.info("bleed box: {}", page.bleedBox)
+    logger.info("media box: {}", page.mediabox)
+    logger.info("trim box: {}", page.trimbox)
+    logger.info("art box: {}", page.artbox)
+    logger.info("crop box: {}", page.cropbox)
+    logger.info("bleed box: {}", page.bleedbox)
 
     # must translate relative position to absolute position
     # box position
-    bx1, by1 = box.getLowerLeft()
+    bx1, by1 = box.lower_left
     bx1, by1 = float(bx1), float(by1)
-    bx2, by2 = box.getUpperRight()
+    bx2, by2 = box.upper_right
     bx2, by2 = float(bx2), float(by2)
 
     # visible area
@@ -32,8 +32,8 @@ def edit_page_box(page, visible_box):
     # MENTION: all boxes is relative position, so we need to fix the position, choose the smaller area
     logger.info("origin box: {}", box)
 
-    box.lowerLeft = (max(bx1, x1 + bx1), max(by1, y1 + by1))
-    box.upperRight = (min(bx2, x2 + bx1), min(by2, y2 + by1))
+    box.lower_left = (max(bx1, x1 + bx1), max(by1, y1 + by1))
+    box.upper_right = (min(bx2, x2 + bx1), min(by2, y2 + by1))
 
     logger.info("bbox after cut: {}", box)
 
@@ -55,15 +55,15 @@ def cut_pdf(source: str, target: str, ignore=0):
         # edit pdf by visible box and output it
         with open(source, "rb") as infd:
             logger.info("process file: {}", source)
-            inpdf = PdfFileReader(infd)
-            outpdf = PdfFileWriter()
+            inpdf = PdfReader(infd)
+            outpdf = PdfWriter()
 
-            for idx in range(inpdf.getNumPages()):
+            for idx in range(len(inpdf.pages)):
                 # scale is the max box of the page
                 box = page_box_list[idx]
                 logger.info("origin scale: {}", box)
 
-                page = inpdf.getPage(idx)
+                page = inpdf.pages[idx]
                 edit_page_box(page, box)
                 outpdf.addPage(page)
 
