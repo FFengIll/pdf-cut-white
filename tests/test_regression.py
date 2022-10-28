@@ -10,11 +10,15 @@ from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
 from pdf_white_cut.parser import get_parser
 
 
+logger.remove()
+logger.add(sys.stderr, level="DEBUG")
+
+
 class Case:
     input: str
     ignore: int
 
-    def __init__(self, input: str,ignore:int=0) -> None:
+    def __init__(self, input: str, ignore: int = 0) -> None:
         self.input = input
         self.ignore = ignore
 
