@@ -1,8 +1,9 @@
 # required
-PyPDF2
-pdfminer.six
-loguru
+PyPDF2==2.11.1
+pdfminer.six==20220624
+loguru==0.6.0
 path
+pytest
 
 # optional
 # PySide6==6.3.2
