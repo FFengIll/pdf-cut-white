@@ -26,15 +26,15 @@ def edit_page_box(page, visible_box):
     ]
 
     # visible area
-    (x1, y1, x2, y2) = [float(i) for i in visible_box]
+    x1, y1, x2, y2 = [float(i) for i in visible_box]
 
     # MENTION: all boxes is relative position, so we need to fix the position, choose the smaller area
-    logger.info("origin box: {}", box)
+    logger.info("origin media box: {}", box)
 
     box.lower_left = (max(bx1, x1 + bx1), max(by1, y1 + by1))
     box.upper_right = (min(bx2, x2 + bx1), min(by2, y2 + by1))
 
-    logger.info("bbox after cut: {}", box)
+    logger.info("cut media box to: {}", box)
 
 
 def cut_pdf(source: str, target: str, ignore=0):
@@ -53,11 +53,11 @@ def cut_pdf(source: str, target: str, ignore=0):
 
         # edit pdf by visible box and output it
         with open(source, "rb") as infd:
-            logger.info("process file: {}", source)
+            logger.info("input file: {}", source)
             inpdf = PdfReader(infd)
             outpdf = PdfWriter()
 
-            for idx in range(len(inpdf.pages)):
+            for idx, page in enumerate(inpdf.pages):
                 # scale is the max box of the page
                 box = page_box_list[idx]
                 logger.info("origin scale: {}", box)

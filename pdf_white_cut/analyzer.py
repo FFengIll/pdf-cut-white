@@ -47,17 +47,17 @@ def extract_box(item):
     bbox = item.bbox
 
     if isinstance(item, LTLine):
-        logger.debug("(as it is) line:{}", item)
+        logger.debug("use itself: {}", item)
     elif isinstance(item, LTRect):
-        logger.debug("(as it is) rect:{}", item)
+        logger.debug("use itself: {}", item)
     elif isinstance(item, LTCurve):
-        logger.debug("(as it is) curve:{}", item)
+        logger.debug("use itself: {}", item)
     elif isinstance(item, LTTextBox):
-        logger.warning("NotImplemented for: TextBox:{}", item)
+        logger.warning("NotImplemented and use itself: {}", item)
     elif isinstance(item, LTTextLine):
         # there is 2 types of `LTTextLine`: horizontal and vertical
         text = item.get_text().encode("unicode_escape")
-        logger.debug("analyse TextLine: {} {}", item, text)
+        logger.debug("analyse LTTextLine: {} {}", item, text)
         # TODO: here we ignored fonts and text line direction, may error in some cases
         # since the text has a height on y-axis, or has a width on x-axis,
         # we must modify it to make the whole text visible
@@ -75,7 +75,7 @@ def extract_box(item):
         # return get_max_box(children_bbox)
     elif isinstance(item, LTChar):
         text = item.get_text().encode("unicode_escape")
-        logger.debug("analyse TextLine: {} {}", item, text)
+        logger.debug("analyse LTChar: {} {}", item, text)
         bbox = (
             bbox[0] - item.width / 2,
             bbox[1] - item.height / 2,
@@ -83,9 +83,9 @@ def extract_box(item):
             bbox[3] + item.height / 2,
         )
     elif isinstance(item, LTImage):
-        logger.warning("NotImplemented for: image:{}", item)
+        logger.warning("NotImplemented and use itself: {}", item)
     elif isinstance(item, LTFigure):
-        logger.debug("analyse figure:{}", item)
+        logger.debug("analyse LTFigure:{}", item)
         # for `LTFigure`, the bbox is modified in `PDFMiner`
         # we should use the content item inside it to calculate real result
         try:
