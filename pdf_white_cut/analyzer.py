@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys
+from numpy import isin
 
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import *
@@ -22,6 +23,8 @@ def get_max_box(box_list):
         -sys.maxsize,
     ]
     for box in box_list:
+        if box is None:
+            continue
         for idx, (a, b) in enumerate(zip(res, box)):
             if idx < 2:
                 res[idx] = min(a, b)
@@ -36,18 +39,49 @@ def extract_box(item):
     this is the core process logic for the tool
     which analyse all items in pdf type by type.
     """
+    # no bbox for LTAnno
+    if isinstance(item, LTAnno):
+        return None
+
+    # use bbox as default area
     bbox = item.bbox
 
-    if isinstance(item, LTTextBox):
+    if isinstance(item, LTLine):
+        logger.debug("(as it is) line:{}", item)
+    elif isinstance(item, LTRect):
+        logger.debug("(as it is) rect:{}", item)
+    elif isinstance(item, LTCurve):
+        logger.debug("(as it is) curve:{}", item)
+    elif isinstance(item, LTTextBox):
         logger.warning("NotImplemented for: TextBox:{}", item)
     elif isinstance(item, LTTextLine):
         # there is 2 types of `LTTextLine`: horizontal and vertical
-        logger.debug(
-            "analyse TextLine: {} {}", item, item.get_text().encode("unicode_escape")
-        )
+        text = item.get_text().encode("unicode_escape")
+        logger.debug("analyse TextLine: {} {}", item, text)
         # TODO: here we ignored fonts and text line direction, may error in some cases
-        # the text has a height on y-axis, so we must modify it to make the whole text visible
-        bbox = bbox[0], bbox[1] - item.height, bbox[2], bbox[3]
+        # since the text has a height on y-axis, or has a width on x-axis,
+        # we must modify it to make the whole text visible
+        # FIXME: no we use `half` for upper and lower, may not right but work
+        bbox = (
+            bbox[0] - item.width / 2,
+            bbox[1] - item.height / 2,
+            bbox[2] + item.width / 2,
+            bbox[3] + item.height / 2,
+        )
+        return bbox
+
+        # might check chart one by one
+        # children_bbox = [extract_box(ch) for ch in item]
+        # return get_max_box(children_bbox)
+    elif isinstance(item, LTChar):
+        text = item.get_text().encode("unicode_escape")
+        logger.debug("analyse TextLine: {} {}", item, text)
+        bbox = (
+            bbox[0] - item.width / 2,
+            bbox[1] - item.height / 2,
+            bbox[2] + item.width / 2,
+            bbox[3] + item.height / 2,
+        )
     elif isinstance(item, LTImage):
         logger.warning("NotImplemented for: image:{}", item)
     elif isinstance(item, LTFigure):
@@ -55,24 +89,16 @@ def extract_box(item):
         # for `LTFigure`, the bbox is modified in `PDFMiner`
         # we should use the content item inside it to calculate real result
         try:
+            children_bbox = []
             # _objs is the original items, of course, only one item for `LTFigure`
-            figure = item._objs[0]
-            # get all the item inside the figure
-            children_bbox = [extract_box(item) for item in figure._objs]
-            return get_max_box(children_bbox)
+            for subfigure in item:
+                # get all the item inside the figure
+                if isinstance(subfigure, LTContainer):
+                    children_bbox = [extract_box(item) for item in subfigure]
+                    return get_max_box(children_bbox)
+                break
         except Exception as e:
-            logger.error("use default for error: {}", e)
-
-    elif isinstance(item, LTAnno):
-        logger.debug("NotImplemented for: anno:{}", item)
-    elif isinstance(item, LTChar):
-        logger.debug("NotImplemented for: char:{}", item)
-    elif isinstance(item, LTLine):
-        logger.debug("(as it is) line:{}", item)
-    elif isinstance(item, LTRect):
-        logger.debug("(as it is) rect:{}", item)
-    elif isinstance(item, LTCurve):
-        logger.debug("(as it is) curve:{}", item)
+            logger.error("use default for error since no processor: {}", e)
 
     return bbox
 
