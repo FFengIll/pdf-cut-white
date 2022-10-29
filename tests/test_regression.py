@@ -24,7 +24,7 @@ class Case:
 
     @property
     def input_path(self):
-        return Path("./cases/{}".format(self.input))
+        return Path("./{}".format(self.input))
 
     @property
     def output_path(self):
@@ -33,9 +33,20 @@ class Case:
 
 def test_regression() -> None:
     cases = [
-        Case("bugfix/error_if_cut_again.pdf"),
-        Case("bugfix/no_literal.pdf"),
-        Case("bugfix/only_left_bottom.pdf", 0),
+        Case("cases/bugfix/error_if_cut_again.pdf"),
+        Case("cases/bugfix/no_literal.pdf"),
+        Case("cases/bugfix/only_left_bottom.pdf", 0),
+    ]
+    for case in cases:
+        cut_pdf(case.input_path, case.output_path, case.ignore)
+
+
+def test_bugfix_cut_again() -> None:
+    cases = [
+        Case("cases/bugfix/error_if_cut_again.pdf"),
+        Case("output/cases/bugfix/error_if_cut_again.pdf"),
+        Case("cases/bugfix/no_literal.pdf"),
+        Case("output/cases/bugfix/no_literal.pdf"),
     ]
     for case in cases:
         cut_pdf(case.input_path, case.output_path, case.ignore)
