@@ -131,7 +131,7 @@ def split(path, template, config, output="split", no_pdf=False):
 
             if not no_pdf:
                 writer = PdfFileWriter()
-                writer.addPage(page)
+                writer.add_page(page)
                 with open("{}".format(path), "wb") as figure:
                     writer.write(figure)
 
