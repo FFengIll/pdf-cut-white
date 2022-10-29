@@ -21,11 +21,12 @@ def edit_page_box(page, visible_box):
 
     # must translate relative position to absolute position
     # box position
-    bx1, by1 = box.lower_left
-    bx2, by2 = box.upper_right
+    bx1, by1, bx2, by2 = [
+        float(i) for i in list(box.lower_left) + list(box.upper_right)
+    ]
 
     # visible area
-    (x1, y1, x2, y2) = visible_box
+    (x1, y1, x2, y2) = [float(i) for i in visible_box]
 
     # MENTION: all boxes is relative position, so we need to fix the position, choose the smaller area
     logger.info("origin box: {}", box)
@@ -63,7 +64,7 @@ def cut_pdf(source: str, target: str, ignore=0):
 
                 page = inpdf.pages[idx]
                 edit_page_box(page, box)
-                outpdf.addPage(page)
+                outpdf.add_page(page)
 
             Path(target).dirname().makedirs_p()
             with open(target, "wb") as outfd:
