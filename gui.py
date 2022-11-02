@@ -141,7 +141,7 @@ class Window(QtWidgets.QDialog):
             output = os.path.join(outdir, name)
 
             try:
-                cutter.cut_pdf(str(input), str(output))
+                cutter.edit_pdf(str(input), str(output))
             except Exception as e:
                 print("error while cut white")
                 traceback.print_exc()

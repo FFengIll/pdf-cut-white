@@ -1,8 +1,7 @@
 import sys
 
+from pdf_white_cut.cutter import batch_edit_pdf, edit_pdf
 from pdf_white_cut.logger import logger
-
-from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
 from pdf_white_cut.parser import get_parser
 
 if __name__ == "__main__":
@@ -13,8 +12,8 @@ if __name__ == "__main__":
         logger.add(sys.stderr, level="DEBUG")
 
     if args.input and args.output:
-        cut_pdf(args.input, args.output, args.ignore)
+        edit_pdf(args.input, args.output, args.ignore)
     elif args.indir and args.outdir:
-        batch_cut_pdf(args.indir, args.outdir, args.ignore)
+        batch_edit_pdf(args.indir, args.outdir, args.ignore)
     else:
         get_parser().print_help()

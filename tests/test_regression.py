@@ -1,14 +1,13 @@
 import sys
 
-sys.path.insert(0, ".")
-
 from path import Path
 
+sys.path.insert(0, ".")
+
+
+from pdf_white_cut.cutter import batch_edit_pdf, edit_pdf
 from pdf_white_cut.logger import logger
-
-from pdf_white_cut.cutter import cut_pdf, batch_cut_pdf
 from pdf_white_cut.parser import get_parser
-
 
 logger.remove()
 logger.add(sys.stderr, level="DEBUG")
@@ -38,7 +37,7 @@ def test_regression() -> None:
         Case("cases/bugfix/only_left_bottom.pdf", 0),
     ]
     for case in cases:
-        cut_pdf(case.input_path, case.output_path, case.ignore)
+        edit_pdf(case.input_path, case.output_path, case.ignore)
 
 
 def test_bugfix_cut_again() -> None:
@@ -49,4 +48,4 @@ def test_bugfix_cut_again() -> None:
         Case("output/cases/bugfix/no_literal.pdf"),
     ]
     for case in cases:
-        cut_pdf(case.input_path, case.output_path, case.ignore)
+        edit_pdf(case.input_path, case.output_path, case.ignore)
