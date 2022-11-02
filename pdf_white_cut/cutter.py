@@ -37,9 +37,9 @@ def edit_page_box(page, visible_box):
     logger.info("cut media box to: {}", box)
 
 
-def cut_pdf(source: str, target: str, ignore=0):
+def edit_pdf(source: str, target: str, ignore=0):
     """
-    cut the white slide of the input pdf file, and output a new pdf file.
+    edit to cut the white slide of the input pdf file, and output a new pdf file.
     """
     if source == target:
         logger.error("{} {}", source, target)
@@ -49,7 +49,7 @@ def cut_pdf(source: str, target: str, ignore=0):
         # MENTION: never move and change the sequence, since file IO.
         # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
         # analyses whole pdf at one time since it use `pdfminer` (not `PyPDF2`)
-        page_box_list = analyzer.analyse_pdf(source, ignore=ignore)
+        page_box_list = analyzer.extract_pdf_boxs(source, ignore=ignore)
 
         # edit pdf by visible box and output it
         with open(source, "rb") as infd:
@@ -90,7 +90,7 @@ def scan_files(folder, glob=""):
     return files
 
 
-def batch_cut_pdf(indir, outdir, ignore=0):
+def batch_edit_pdf(indir, outdir, ignore=0):
     if indir == outdir:
         raise Exception("input and output can not be the same!")
 
@@ -106,4 +106,4 @@ def batch_cut_pdf(indir, outdir, ignore=0):
         source = Path.joinpath(indir, item)
         target = Path.joinpath(outdir, item)
         logger.info("{} {} ", source, target)
-        cut_pdf(source, target, ignore=ignore)
+        edit_pdf(source, target, ignore=ignore)
