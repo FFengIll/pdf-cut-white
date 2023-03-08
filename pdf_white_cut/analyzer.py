@@ -69,7 +69,7 @@ def extract_item_box(item):
         # TODO: here we ignored fonts and text line direction, may error in some cases
         # since the text has a height on y-axis, or has a width on x-axis,
         # we must modify it to make the whole text visible
-        # FIXME: no we use `half` for upper and lower, may not right but work
+        # FIXME: now we use `half` for upper and lower, may not right but work
         bbox = (
             bbox[0] - item.width / 2,
             bbox[1] - item.height / 2,
