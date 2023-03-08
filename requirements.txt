@@ -1,6 +1,6 @@
 # required
 PyPDF2==2.11.1
-pdfminer.six==20220624
+pdfminer.six
 loguru==0.6.0
 path
 pytest
