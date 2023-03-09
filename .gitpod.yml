@@ -11,3 +11,4 @@ vscode:
 
     - cweijan.vscode-office
 
+    - ms-python.black-formatter
