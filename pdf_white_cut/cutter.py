@@ -37,13 +37,20 @@ def edit_page_box(page, visible_box):
     logger.info("cut media box to: {}", box)
 
 
-def edit_pdf(source: str, target: str, ignore=0):
+def edit_pdf(source: Path, target: Path, ignore=0):
     """
     edit to cut the white slide of the input pdf file, and output a new pdf file.
     """
+    # guard type
+    source = Path(source)
+    target = Path(target)
+
     if source == target:
         logger.error("{} {}", source, target)
         raise Exception("input and output can not be the same!")
+
+    if not source.exists():
+        raise Exception("input file not exists! ({})".format(source))
 
     try:
         # MENTION: never move and change the sequence, since file IO.
@@ -66,41 +73,34 @@ def edit_pdf(source: str, target: str, ignore=0):
                 edit_page_box(page, box)
                 outpdf.add_page(page)
 
-            Path(target).dirname().makedirs_p()
+            logger.info("output to {}", Path(target))
+            target.abspath().dirname().makedirs_p()
             with open(target, "wb") as outfd:
                 outpdf.write(outfd)
-                logger.info("output file: {}", target)
 
     except UnicodeEncodeError as ue:
         logger.exception("UnicodeEncodeError while processing file:{}", source)
         logger.exception(ue)
         raise ue
     except Exception as e:
-        logger.exception("Some other Error while processing file:{}", source)
+        logger.exception("Some unknown Error while processing file:{}", source)
         logger.exception(e)
         raise e
 
 
-def scan_files(folder, glob=""):
-    """
-    scan files under the dir with spec prefix and postfix
-    """
-    files = []
-    for item in Path(folder).listdir(glob):
-        item: "Path"
-        files.append(item.basename())
-    return files
+def batch_edit_pdf(indir: Path, outdir: Path, ignore=0):
+    # guard type
+    indir = Path(indir)
+    outdir = Path(outdir)
 
-
-def batch_edit_pdf(indir, outdir, ignore=0):
     if indir == outdir:
         raise Exception("input and output can not be the same!")
 
-    files = scan_files(indir, glob="*.pdf")
-    logger.info(files)
+    files = [pdf.basename() for pdf in indir.listdir("*.pdf")]
+    logger.info("pdf files in spec folder: {}", files)
 
-    if not os.path.exists(indir):
-        os.mkdir(indir)
+    # guard dir
+    outdir.makedirs_p()
 
     logger.info("input dir: {}", indir)
     logger.info("output dir: {}", outdir)
