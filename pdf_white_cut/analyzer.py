@@ -61,7 +61,7 @@ def extract_item_box(item):
     elif isinstance(item, LTCurve):
         logger.debug("use itself: {}", item)
     elif isinstance(item, LTTextBox):
-        logger.warning("NotImplemented and use itself: {}", item)
+        logger.warning("use itself since NotImplemented: {}", item)
     elif isinstance(item, LTTextLine):
         # there is 2 types of `LTTextLine`: horizontal and vertical
         text = item.get_text().encode("unicode_escape")
@@ -91,7 +91,7 @@ def extract_item_box(item):
             bbox[3] + item.height / 2,
         )
     elif isinstance(item, LTImage):
-        logger.warning("NotImplemented and use itself: {}", item)
+        logger.warning("use itself since NotImplemented: {}", item)
     elif isinstance(item, LTFigure):
         logger.debug("analyse LTFigure:{}", item)
         # for `LTFigure`, the bbox is modified in `PDFMiner`
@@ -160,7 +160,6 @@ def extract_pdf_boxs(filename, ignore=0):
             boxs.append(box)
 
         max_box = get_max_box(boxs)
-        logger.warning("visible bbox: {}", max_box)
         page_boxs.append(max_box)
 
         logger.warning("max visible bbox for the page: {}", max_box)
