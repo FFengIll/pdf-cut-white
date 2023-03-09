@@ -19,7 +19,7 @@ def get_parser():
         "-id",
         help="input directory",
         action="store",
-        default="",
+        default=".",
         type=str,
         dest="indir",
     )
@@ -27,7 +27,7 @@ def get_parser():
         "-od",
         help="output directory",
         action="store",
-        default="",
+        default=".",
         type=str,
         dest="outdir",
     )
