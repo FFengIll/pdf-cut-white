@@ -8,6 +8,6 @@ tasks:
 vscode:
   extensions:
     - ms-python.python
-
     - cweijan.vscode-office
-
+    - ms-python.black-formatter
+    - eamodio.gitlens

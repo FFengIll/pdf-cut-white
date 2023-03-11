@@ -11,9 +11,12 @@ if __name__ == "__main__":
         logger.remove()
         logger.add(sys.stderr, level="DEBUG")
 
-    if args.input and args.output:
-        edit_pdf(args.input, args.output, args.ignore)
-    elif args.indir and args.outdir:
-        batch_edit_pdf(args.indir, args.outdir, args.ignore)
-    else:
-        get_parser().print_help()
+    try:
+        if args.input and args.output:
+            edit_pdf(args.input, args.output, args.ignore)
+        elif args.indir and args.outdir:
+            batch_edit_pdf(args.indir, args.outdir, args.ignore)
+        else:
+            get_parser().print_help()
+    except:
+        exit(1)
