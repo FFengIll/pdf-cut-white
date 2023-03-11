@@ -74,9 +74,11 @@ def edit_pdf(source: str, target: str, ignore=0):
     except UnicodeEncodeError as ue:
         logger.exception("UnicodeEncodeError while processing file:{}", source)
         logger.exception(ue)
+        raise ue
     except Exception as e:
         logger.exception("Some other Error while processing file:{}", source)
         logger.exception(e)
+        raise e
 
 
 def scan_files(folder, glob=""):
