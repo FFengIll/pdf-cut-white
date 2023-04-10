@@ -1,7 +1,7 @@
 import os
 
-from PyPDF2 import PdfWriter, PdfReader
 from path import Path
+from pypdf import PdfReader, PdfWriter
 
 from pdf_white_cut import analyzer
 from pdf_white_cut.logger import logger
@@ -55,7 +55,7 @@ def edit_pdf(source: Path, target: Path, ignore=0):
     try:
         # MENTION: never move and change the sequence, since file IO.
         # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
-        # analyses whole pdf at one time since it use `pdfminer` (not `PyPDF2`)
+        # analyses whole pdf at one time since it use `pdfminer` (not `pypdf`)
         page_box_list = analyzer.extract_pdf_boxs(source, ignore=ignore)
 
         # edit pdf by visible box and output it

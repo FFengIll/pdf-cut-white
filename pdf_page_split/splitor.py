@@ -1,15 +1,12 @@
 # coding=utf-8
 import argparse
-import PyPDF2 as pdflib
-from PyPDF2 import PdfFileWriter, PdfFileReader
-
-import os
-import sys
-import logging
-
-
 import configparser
 import csv
+import logging
+import os
+import sys
+
+from pypdf import PdfReader, PdfWriter
 
 # from config import config
 
@@ -113,7 +110,7 @@ def split(path, template, config, output="split", no_pdf=False):
     with open(path, "rb") as pdf, open(
         "log.txt".format(output), "w", encoding="utf-8"
     ) as log:
-        reader = PdfFileReader(pdf)
+        reader = PdfReader(pdf)
 
         for i, item in zip(range(reader.getNumPages()), config):
             if item is None:
@@ -130,7 +127,7 @@ def split(path, template, config, output="split", no_pdf=False):
             page = reader.getPage(i)
 
             if not no_pdf:
-                writer = PdfFileWriter()
+                writer = PdfWriter()
                 writer.add_page(page)
                 with open("{}".format(path), "wb") as figure:
                     writer.write(figure)
