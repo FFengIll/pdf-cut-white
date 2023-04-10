@@ -1,7 +1,7 @@
 import sys
 
 import loguru
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from pypdf import PdfReader, PdfWriter
 
 sys.path.append(".")
 
@@ -28,13 +28,12 @@ def test_analyzer():
 
 
 def test_rw_pdf():
-
-    pdf = PdfFileReader(open("cases/input/input.pdf", "rb"))
-    out = PdfFileWriter()
+    pdf = PdfReader(open("cases/input/input.pdf", "rb"))
+    out = PdfWriter()
 
     for page in pdf.pages:
-        page.mediaBox.upper_right = (580, 800)
-        page.mediaBox.lower_left = (128, 232)
+        page.mediabox.upper_right = (580, 800)
+        page.mediabox.lower_left = (128, 232)
         out.add_page(page)
 
     ous = open("cases/output/output.pdf", "wb")
