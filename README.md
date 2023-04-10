@@ -96,7 +96,8 @@ Known limitation:
 
 ## Dependency
 
-- PyPDF2: edit the pdf box
+- pypdf: a pure python module for pdf (upgrade of PyPDF2)
+- ~~PyPDF2: edit the pdf box~~
 - ~~pdfminer & pdfminer3: scan elements~~
 - pdfminer.six: scan pdf elements
 - ~~PySide2: optional for GUI only~~

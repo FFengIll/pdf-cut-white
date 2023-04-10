@@ -13,7 +13,7 @@
   - 输出所有的对应latex语句（template.tex）中可以修改
 
 # 使用
-- python3 -m pip install PyPDF2
+- python3 -m pip install -r requirements.txt
 - python3 splitor.py -t figure.tex -c figure.csv -o split/figure testcase.pdf
   - `-t`选择模板，只有figure和table两类（也可以执行修改）
   - `-c`选择数据文件
