@@ -18,32 +18,16 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 工具可以对生成的 PDF 图表进行自动裁剪，减少人工操作和其他软件依赖（如`Acrobat`）。
 其自动的工作流程为：
 
-- 读取原始 PDF 文件
-- 识别 PDF 中的白边（基于 pdf item 分析）
+- 读取原始 PDF 文件中的每一页（实际上只会处理第一页，这里默认每个pdf是一个单页图表）
+- 按页识别 PDF 中的白边（基于 pdf item 分析）
 - 裁剪白边（本质上是通过缩减 media box 实现）
 - 输入无白边 PDF 文件
 
 # Usage
 
-Prepare env
+推荐使用命令行版本（命令见[CLI](#cli)），至少需要安装python3.6。
 
-- install `python3` (python 3.6 or above)
-- install dependency `pip3 install -r requirements.txt`, or `pip3 install -r requirements.txt --user`
-
-Recommend to use `CLI (command line tool)`:
-
-- cut single pdf: `python cli.py -i in.pdf -o out.pdf`
-- cut all pdf just bellow dir: `python cli.py -id infolder -od outfolder`
-
-> MENTION: sometimes add `--ignore 1` if output is not the wanted.
-
-If you **REALLY** wanna use `GUI`:
-
-- install PySide6, the official Qt for Python : ), `pip install PySide6==6.3.2`
-- if success, run `python gui.py`
-
-推荐使用命令行版本（命令如上），至少需要安装python3.6。
-若希望使用 GUI 版本，请确保能够成功安装 PySide6（命令如上）：
+若希望使用 GUI 版本，请确保能够成功安装 PySide6（命令见[GUI](#gui)）：
 
 - 启用工具，选择输入文件夹和输出文件夹（必须使用不同的文件夹防止源文件覆盖）
 - 扫描 pdf 文件（GUI 支持在列表中二次选择 PDF）（注意：仅会扫描一级目录，而不会扫描子目录）
@@ -53,6 +37,30 @@ If you **REALLY** wanna use `GUI`:
 请优先不带`ignore`尝试，有问题再带参数，人工检查一遍即可，这种情况也相对有有限（取决于绘图工具）。
 
 注意：发现任何问题，请参看`issue`，若仍无法解决，请提新`issue`（请`--verbose`执行附带 log）（若可以，请提交对应的 case.pdf）。
+
+## Install
+
+- install `python3` (python 3.6 or above)
+- install dependency 
+  - `pip3 install -r requirements.txt`, 
+  - or `pip3 install -r requirements.txt --user`
+
+## CLI
+
+Recommend to use `CLI (command line tool)`:
+
+- cut single pdf: `python cli.py -i in.pdf -o out.pdf`
+- cut all pdf files under a folder: `python cli.py -id infolder -od outfolder`
+
+> MENTION: sometimes add `--ignore 1` if output is not the wanted.
+
+## GUI
+
+If you **REALLY** require `GUI`:
+
+- install PySide6, the official Qt for Python : ), `pip install PySide6==6.3.2`
+- if success, run `python gui.py`
+
 
 # Test
 
