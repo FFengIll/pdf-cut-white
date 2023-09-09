@@ -51,7 +51,7 @@ def _parse_toc(doc):
     toc = []
     try:
         outlines = doc.get_outlines()
-        for (level, title, dest, a, se) in outlines:
+        for level, title, dest, a, se in outlines:
             toc.append((level, title))
     except PDFNoOutlines:
         pass
@@ -68,7 +68,8 @@ def get_toc(pdf_doc, pdf_pwd=""):
 ###
 def write_file(folder, filename, filedata, flags="w"):
     """Write the file data to the folder and filename combination
-    (flags: 'w' for write text, 'wb' for write binary, use 'a' instead of 'w' for append)"""
+    (flags: 'w' for write text, 'wb' for write binary, use 'a' instead of 'w' for append)
+    """
     result = False
     if os.path.isdir(folder):
         try:
