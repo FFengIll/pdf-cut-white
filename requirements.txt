@@ -1,7 +1,7 @@
 # required
 pypdf==3.17.0
 pdfminer.six
-loguru==0.6.0
+loguru
 path
 pytest
 
