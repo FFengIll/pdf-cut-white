@@ -13,7 +13,7 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QLabel
 
-from pdf_white_cut import cutter
+from pdf_white_cut import worker
 from pdf_white_cut.logger import logger
 
 logger.warning("GUI is not stable enough, recommand to use cli.")
@@ -141,7 +141,7 @@ class Window(QtWidgets.QDialog):
             output = os.path.join(outdir, name)
 
             try:
-                cutter.edit_pdf(str(input), str(output))
+                worker.cut_pdf(str(input), str(output))
             except Exception as e:
                 print("error while cut white")
                 traceback.print_exc()
