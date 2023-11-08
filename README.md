@@ -6,7 +6,7 @@ Please redo `pip3 install -r requirements.txt` since dependencies changed (see [
 
 # Motivation
 
-While latex, it takes time to `cut the useless white part of pdf`, then, here comes a tool for it.
+While latex, it takes time to `cut the useless white part of pdf`, so here comes a tool for it.
 
 在使用 Latex 书写论文时（或者其他时刻），花费了不少的时间处理 PDF 图表——`裁剪不必要的图表白边`。
 所幸就写个工具自动完成吧——自动化且精准。
@@ -25,7 +25,7 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 
 # Usage
 
-推荐使用命令行版本（命令见[CLI](#cli)），至少需要安装python3.6。
+推荐使用命令行版本（命令见[CLI](#cli)），至少需要安装python3.8。
 
 若希望使用 GUI 版本，请确保能够成功安装 PySide6（命令见[GUI](#gui)）：
 
@@ -40,7 +40,7 @@ Automatic cut the useless white part of pdf. This pdf must be a single page of t
 
 ## Install
 
-- install `python3` (python 3.6 or above)
+- install `python3` (python 3.8 or above)
 - install dependency 
   - `pip3 install -r requirements.txt`, 
   - or `pip3 install -r requirements.txt --user`
@@ -62,11 +62,10 @@ If you **REALLY** require `GUI`:
 - if success, run `python gui.py`
 
 
-# Test
-
-`pytest -s tests/test.py`
-
 # Misc
+
+## Test
+`pytest -s tests/`
 
 ## Limitation
 
@@ -93,6 +92,7 @@ Known limitation:
 
 ## Changelog
 
+- (refactor) less files, less function defines.
 - (dependency) bump to PySide6 for GUI with QT.
 - (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**).
 - (bugfix) missing `LTFigure` analysis.
@@ -105,8 +105,6 @@ Known limitation:
 ## Dependency
 
 - pypdf: a pure python module for pdf (upgrade of PyPDF2)
-- ~~PyPDF2: edit the pdf box~~
-- ~~pdfminer & pdfminer3: scan elements~~
 - pdfminer.six: scan pdf elements
-- ~~PySide2: optional for GUI only~~
 - PySide6: optional for GUI only
+- loguru: for log only
