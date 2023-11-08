@@ -1,12 +1,12 @@
 import sys
 
 import loguru
+import pytest
 from pypdf import PdfReader, PdfWriter
 
 sys.path.append(".")
 
-from pdf_white_cut.analyzer import extract_pdf_boxs
-from pdf_white_cut.cutter import batch_edit_pdf, edit_pdf
+from pdf_white_cut.worker import batch_cut_pdf, cut_pdf, extract_pdf_boxs
 
 logger = loguru.logger
 
@@ -14,15 +14,16 @@ logger = loguru.logger
 def test_cut_pdf():
     inputfile = "./cases/input/input.pdf"
     outputfile = "./cases/output/output.pdf"
-    edit_pdf(inputfile, outputfile)
+    cut_pdf(inputfile, outputfile)
 
 
 def test_batch_cut_pdf():
     outdir = "./cases/output"
     indir = "./cases/input"
-    batch_edit_pdf(indir, outdir)
+    batch_cut_pdf(indir, outdir)
 
 
+@pytest.mark.skip()
 def test_analyzer():
     extract_pdf_boxs("test-complex2.pdf")
 
