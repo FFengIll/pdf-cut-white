@@ -37,6 +37,6 @@ def test_rw_pdf():
         page.mediabox.lower_left = (128, 232)
         out.add_page(page)
 
-    ous = open("cases/output/output.pdf", "wb")
+    ous = open("cases/output/empty.pdf", "wb")
     out.write(ous)
     ous.close()
