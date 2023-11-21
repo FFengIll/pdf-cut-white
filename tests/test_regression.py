@@ -6,7 +6,7 @@ sys.path.insert(0, ".")
 
 
 from pdf_white_cut.logger import logger
-from pdf_white_cut.parser import get_parser
+from pdf_white_cut.util import get_parser
 from pdf_white_cut.worker import batch_cut_pdf, cut_pdf
 
 logger.remove()
