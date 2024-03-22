@@ -27,7 +27,9 @@ class Case:
 
     @property
     def output_path(self):
-        return Path("./output/{}".format(self.input))
+        output = Path("./output/{}".format(self.input))
+        output.dirname().makedirs_p()
+        return output
 
 
 def test_regression() -> None:
