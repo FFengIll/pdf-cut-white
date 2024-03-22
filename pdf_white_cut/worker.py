@@ -82,41 +82,41 @@ def cut_pdf(source: Path, target: Path, ignore=0):
 
     try:
         # edit pdf by visible box and output it
-        with open(source, "rb") as infd:
-            logger.info("input file: {}", source)
+        logger.info("input file: {}", source)
 
-            tmp = target + ".tmp"
-            rotates = []
+        tmp = target + ".tmp"
+        logger.info("use tmp: {}", tmp)
+        rotates = []
 
-            # clear rotate
-            inpdf = fitz.open(infd)
-            for page in inpdf:
-                rotates.append(page.rotation)
-                page.set_rotation(0)
-            inpdf.save(tmp, incremental=False)
-            inpdf.close()
+        # clear rotate
+        inpdf = fitz.open(str(source))
+        for page in inpdf:
+            rotates.append(page.rotation)
+            page.set_rotation(0)
+        inpdf.save(tmp, incremental=False)
+        inpdf.close()
 
-            # MENTION: never move and change the sequence, since file IO.
-            # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
-            # analyses whole pdf at one time since it use `pdfminer` (not `pypdf`)
-            page_box_list = worker.extract_pdf_boxs(tmp, ignore=ignore)
+        # MENTION: never move and change the sequence, since file IO.
+        # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
+        # analyses whole pdf at one time since it use `pdfminer` (not `pypdf`)
+        page_box_list = worker.extract_pdf_boxs(tmp, ignore=ignore)
 
-            inpdf = fitz.open(tmp)
+        inpdf = fitz.open(str(tmp))
 
-            for idx, page in enumerate(inpdf):
-                # scale is the max box of the page
-                box = page_box_list[idx]
-                logger.info("origin scale: {}", box)
+        for idx, page in enumerate(inpdf):
+            # scale is the max box of the page
+            box = page_box_list[idx]
+            logger.info("origin scale: {}", box)
 
-                cut_page_box(page, box)
+            cut_page_box(page, box)
 
-                page.set_rotation(rotates[idx])
+            page.set_rotation(rotates[idx])
 
-            logger.info("output to {}", Path(target))
-            target.abspath().dirname().makedirs_p()
+        logger.info("output to {}", Path(target))
+        target.abspath().dirname().makedirs_p()
 
-            inpdf.save(target, incremental=False)
-            inpdf.close()
+        inpdf.save(target, incremental=False)
+        inpdf.close()
 
     except UnicodeEncodeError as ue:
         logger.exception("UnicodeEncodeError while processing file:{}", source)
