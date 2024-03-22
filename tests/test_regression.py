@@ -49,3 +49,11 @@ def test_bugfix_cut_again() -> None:
     ]
     for case in cases:
         cut_pdf(case.input_path, case.output_path, case.ignore)
+
+
+def test_bugfix_rotate() -> None:
+    base = Path("cases/bugfix/rotate")
+    cases = [Case(i) for i in base.listdir("*.pdf")]
+
+    for case in cases:
+        cut_pdf(case.input_path, case.output_path, case.ignore)

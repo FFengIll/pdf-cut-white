@@ -4,6 +4,7 @@ pdfminer.six
 loguru
 path
 pytest
+PyMuPDF # fitz
 
 # optional
 # PySide6==6.3.2
