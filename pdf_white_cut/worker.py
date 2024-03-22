@@ -18,20 +18,22 @@ from pdfminer.layout import (
     LTTextBox,
     LTTextLine,
 )
+from pdfminer import layout
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
 from pdfminer.pdfparser import PDFParser
-from pypdf import PdfReader, PdfWriter
+import fitz  # PyMuPDF
 
 from pdf_white_cut import worker
 from pdf_white_cut.logger import logger
 
 
-def cut_page_box(page, visible_box):
+def cut_page_box(page: fitz.Page, visible_box: fitz.Rect):
     """
     cut the box by setting new position (relative position)
     """
+
     box = page.mediabox
     # MENTION: media box is a visible area of the pdf page
     logger.info("media box: {}", page.mediabox)
@@ -42,9 +44,7 @@ def cut_page_box(page, visible_box):
 
     # must translate relative position to absolute position
     # box position
-    bx1, by1, bx2, by2 = [
-        float(i) for i in list(box.lower_left) + list(box.upper_right)
-    ]
+    bx1, by1, bx2, by2 = [box.x0, box.y0, box.x1, box.y1]
 
     # visible area
     x1, y1, x2, y2 = [float(i) for i in visible_box]
@@ -56,6 +56,13 @@ def cut_page_box(page, visible_box):
     box.upper_right = (min(bx2, x2 + bx1), min(by2, y2 + by1))
 
     logger.info("cut media box to: {}", box)
+
+    # Define a new MediaBox (left, bottom, right, top)
+    # This example reduces each side by 10 units
+    new_media_box = fitz.Rect(*box.lower_left, *box.upper_right)
+
+    # Set the new MediaBox for the page
+    page.set_mediabox(new_media_box)
 
 
 def cut_pdf(source: Path, target: Path, ignore=0):
@@ -74,30 +81,42 @@ def cut_pdf(source: Path, target: Path, ignore=0):
         raise Exception("input file not exists! ({})".format(source))
 
     try:
-        # MENTION: never move and change the sequence, since file IO.
-        # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
-        # analyses whole pdf at one time since it use `pdfminer` (not `pypdf`)
-        page_box_list = worker.extract_pdf_boxs(source, ignore=ignore)
-
         # edit pdf by visible box and output it
         with open(source, "rb") as infd:
             logger.info("input file: {}", source)
-            inpdf = PdfReader(infd)
-            outpdf = PdfWriter()
 
-            for idx, page in enumerate(inpdf.pages):
+            tmp = target + ".tmp"
+            rotates = []
+
+            # clear rotate
+            inpdf = fitz.open(infd)
+            for page in inpdf:
+                rotates.append(page.rotation)
+                page.set_rotation(0)
+            inpdf.save(tmp, incremental=False)
+            inpdf.close()
+
+            # MENTION: never move and change the sequence, since file IO.
+            # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
+            # analyses whole pdf at one time since it use `pdfminer` (not `pypdf`)
+            page_box_list = worker.extract_pdf_boxs(tmp, ignore=ignore)
+
+            inpdf = fitz.open(tmp)
+
+            for idx, page in enumerate(inpdf):
                 # scale is the max box of the page
                 box = page_box_list[idx]
                 logger.info("origin scale: {}", box)
 
-                page = inpdf.pages[idx]
                 cut_page_box(page, box)
-                outpdf.add_page(page)
+
+                page.set_rotation(rotates[idx])
 
             logger.info("output to {}", Path(target))
             target.abspath().dirname().makedirs_p()
-            with open(target, "wb") as outfd:
-                outpdf.write(outfd)
+
+            inpdf.save(target, incremental=False)
+            inpdf.close()
 
     except UnicodeEncodeError as ue:
         logger.exception("UnicodeEncodeError while processing file:{}", source)
@@ -170,7 +189,14 @@ def extract_item_box(item):
     elif isinstance(item, LTCurve):
         logger.debug("use itself: {}", item)
     elif isinstance(item, LTTextBox):
-        logger.warning("use itself since NotImplemented: {}", item)
+        if isinstance(item, layout.LTTextBoxHorizontal):
+            ...
+            logger.warning("LTTextBoxHorizontal: {}", item)
+        elif isinstance(item, layout.LTTextBoxVertical):
+            ...
+            logger.warning("LTTextBoxVertical: {}", item)
+        else:
+            logger.warning("use itself since NotImplemented: {}", item)
     elif isinstance(item, LTTextLine):
         # there is 2 types of `LTTextLine`: horizontal and vertical
         text = item.get_text().encode("unicode_escape")
