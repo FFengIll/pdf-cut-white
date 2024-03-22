@@ -114,6 +114,7 @@ Known limitation:
 
 ## Changelog
 
+- (bugfix/feat) support rotated pdf pages.
 - (refactor) less files, less function defines.
 - (dependency) bump to PySide6 for GUI with QT.
 - (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**).
@@ -126,6 +127,7 @@ Known limitation:
 
 ## Dependency
 
+- PyMuPDF: it is fitz which do well in pdf IO
 - pypdf: a pure python module for pdf (upgrade of PyPDF2)
 - pdfminer.six: scan pdf elements
 - PySide6: optional for GUI only
