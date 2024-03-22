@@ -18,5 +18,6 @@ if __name__ == "__main__":
             batch_cut_pdf(args.indir, args.outdir, args.ignore)
         else:
             get_parser().print_help()
-    except:
+    except Exception as e:
+        logger.exception(e)
         exit(1)
