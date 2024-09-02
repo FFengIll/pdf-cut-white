@@ -80,6 +80,9 @@ def cut_pdf(source: Path, target: Path, ignore=0):
     if not source.exists():
         raise Exception("input file not exists! ({})".format(source))
 
+    # make dir if possible
+    target.absolute().dirname().makedirs_p()
+
     try:
         # edit pdf by visible box and output it
         logger.info("input file: {}", source)
@@ -113,7 +116,6 @@ def cut_pdf(source: Path, target: Path, ignore=0):
             page.set_rotation(rotates[idx])
 
         logger.info("output to {}", Path(target))
-        target.abspath().dirname().makedirs_p()
 
         inpdf.save(target, incremental=False)
         inpdf.close()
@@ -133,8 +135,11 @@ def batch_cut_pdf(indir: Path, outdir: Path, ignore=0):
     indir = Path(indir)
     outdir = Path(outdir)
 
-    if indir.abspath() == outdir.abspath():
+    if indir.absolute() == outdir.absolute():
         raise Exception("input and output can not be the same!")
+
+    # make dir if possible for output
+    outdir.makedirs_p()
 
     logger.info("input dir: {}", indir)
     logger.info("output dir: {}", outdir)
