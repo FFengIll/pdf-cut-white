@@ -7,4 +7,3 @@ pytest
 PyMuPDF==1.24.9 # fitz
 
 # optional
-# PySide6==6.3.2

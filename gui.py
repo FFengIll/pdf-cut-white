@@ -1,142 +1,90 @@
 #!/usr/bin/env python
 # encoding=utf-8
 """
-this gui based on PySide (QT for Python) and used the example - findfiles.pyw as template.
-see for details: https://wiki.qt.io/Qt_for_Python
+this gui based on Tkinter framework.
 """
 
 import os
 import sys
 import traceback
-
-from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
 
 from pdf_white_cut import worker
 from pdf_white_cut.logger import logger
 
-logger.warning("GUI is not stable enough, recommand to use cli.")
 
-
-class Window(QtWidgets.QDialog):
+class Window(tk.Tk):
     def __init__(self):
-        super(Window, self).__init__()
+        super().__init__()
 
-        browseButton = self.createButton("&Browse...", self.browseInDir)
-        browse2Button = self.createButton("&Browse...", self.browseOutDir)
-        findButton = self.createButton("&Find PDF", self.find)
-        actionButton = self.createButton("&Cut White", self.doAction)
-        allButton = self.createButton("&Select All", self.selectAll)
-        unallButton = self.createButton("&Unselect All", self.unselectAll)
+        self.title("PDF Cut White")
+        self.geometry("700x500")
 
-        self.fileComboBox = self.createComboBox("*.pdf")
-        self.textComboBox = self.createComboBox()
-        self.directoryComboBox = self.createComboBox(QtCore.QDir.currentPath())
-        self.directory2ComboBox = self.createComboBox(
-            os.path.join(QtCore.QDir.currentPath(), "cases/output")
-        )
+        self.create_widgets()
 
-        fileLabel = QtWidgets.QLabel("Named:")
-        directoryLabel = QtWidgets.QLabel("Input directory:")
-        directory2Label = QtWidgets.QLabel("Output directory:")
-        self.filesFoundLabel = QtWidgets.QLabel()
+    def create_widgets(self):
+        self.browse_in_button = self.create_button("Browse...", self.browse_in_dir)
+        self.browse_out_button = self.create_button("Browse...", self.browse_out_dir)
+        self.find_button = self.create_button("Find PDF", self.find)
+        self.action_button = self.create_button("Cut White", self.do_action)
+        self.select_all_button = self.create_button("Select All", self.select_all)
+        self.unselect_all_button = self.create_button("Unselect All", self.unselect_all)
 
-        self.createFilesTable()
+        self.file_combobox = self.create_combobox("*.pdf")
+        self.text_combobox = self.create_combobox()
+        self.directory_combobox = self.create_combobox(os.getcwd())
+        self.directory2_combobox = self.create_combobox(os.path.join(os.getcwd(), "cases/output"))
 
-        buttonsLayout = QtWidgets.QHBoxLayout()
-        buttonsLayout.addStretch()
-        buttonsLayout.addWidget(findButton)
-        buttonsLayout.addWidget(actionButton)
+        self.files_found_label = tk.Label(self)
 
-        checkButtonLayout = QtWidgets.QHBoxLayout()
-        checkButtonLayout.addStretch()
-        checkButtonLayout.addWidget(allButton)
-        checkButtonLayout.addWidget(unallButton)
+        self.create_files_table()
 
-        mainLayout = QtWidgets.QGridLayout()
-        mainLayout.addWidget(fileLabel, 0, 0)
-        mainLayout.addWidget(self.fileComboBox, 0, 1, 1, 2)
+        buttons_frame = tk.Frame(self)
+        buttons_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.find_button.pack(in_=buttons_frame, side=tk.LEFT)
+        self.action_button.pack(in_=buttons_frame, side=tk.LEFT)
+        self.select_all_button.pack(in_=buttons_frame, side=tk.LEFT)
+        self.unselect_all_button.pack(in_=buttons_frame, side=tk.LEFT)
 
-        mainLayout.addWidget(directoryLabel, 2, 0)
-        mainLayout.addWidget(self.directoryComboBox, 2, 1)
-        mainLayout.addWidget(browseButton, 2, 2)
+        self.file_combobox.pack(fill=tk.X)
+        self.directory_combobox.pack(fill=tk.X)
+        self.browse_in_button.pack(fill=tk.X)
+        self.directory2_combobox.pack(fill=tk.X)
+        self.browse_out_button.pack(fill=tk.X)
+        self.files_table.pack(fill=tk.BOTH, expand=True)
+        self.files_found_label.pack(fill=tk.X)
 
-        mainLayout.addWidget(directory2Label, 3, 0)
-        mainLayout.addWidget(self.directory2ComboBox, 3, 1)
-        mainLayout.addWidget(browse2Button, 3, 2)
-
-        mainLayout.addWidget(self.filesTable, 4, 0, 1, 3)
-        mainLayout.addWidget(self.filesFoundLabel, 5, 0, 1, 3)
-        mainLayout.addLayout(checkButtonLayout, 6, 0)
-        mainLayout.addLayout(buttonsLayout, 6, 1, 1, 2)
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle("PDF Cut White")
-        self.resize(700, 500)
-
-    def browseInDir(self):
-        directory = QtWidgets.QFileDialog.getExistingDirectory(
-            self, "Input Dir", QtCore.QDir.currentPath()
-        )
-
+    def browse_in_dir(self):
+        directory = filedialog.askdirectory(initialdir=os.getcwd(), title="Input Dir")
         if directory:
-            if self.directoryComboBox.findText(directory) == -1:
-                self.directoryComboBox.addItem(directory)
+            self.directory_combobox.set(directory)
 
-            self.directoryComboBox.setCurrentIndex(
-                self.directoryComboBox.findText(directory)
-            )
-
-    def browseOutDir(self):
-        directory = QtWidgets.QFileDialog.getExistingDirectory(
-            self, "Output Dir", QtCore.QDir.currentPath()
-        )
-
+    def browse_out_dir(self):
+        directory = filedialog.askdirectory(initialdir=os.getcwd(), title="Output Dir")
         if directory:
-            if self.directory2ComboBox.findText(directory) == -1:
-                self.directory2ComboBox.addItem(directory)
+            self.directory2_combobox.set(directory)
 
-            self.directory2ComboBox.setCurrentIndex(
-                self.directory2ComboBox.findText(directory)
-            )
+    def set_check(self, flag):
+        for row in self.files_table.get_children():
+            self.files_table.item(row, tags=(flag,))
 
-    @staticmethod
-    def updateComboBox(comboBox):
-        if comboBox.findText(comboBox.currentText()) == -1:
-            comboBox.addItem(comboBox.currentText())
+    def select_all(self):
+        self.set_check("checked")
 
-    def setCheck(self, flag):
-        cnt = self.filesTable.rowCount()
-        for row in range(cnt):
-            checkitem = self.filesTable.item(row, 0)
-            if checkitem.checkState() == QtCore.Qt.Unchecked:
-                checkitem.setCheckState(flag)
+    def unselect_all(self):
+        self.set_check("unchecked")
 
-    def selectAll(self):
-        self.setCheck(QtCore.Qt.Checked)
-
-    def unselectAll(self):
-        self.setCheck(QtCore.Qt.UnChecked)
-
-    def doAction(self):
-        """
-        do action to cut the white and output new pdf
-        """
-        indir = self.directoryComboBox.currentText()
-        outdir = self.directory2ComboBox.currentText()
+    def do_action(self):
+        indir = self.directory_combobox.get()
+        outdir = self.directory2_combobox.get()
 
         success = True
         msg = ""
-        cnt = self.filesTable.rowCount()
-        for row in range(cnt):
-            checkitem = self.filesTable.item(row, 0)
-            if checkitem.checkState() == QtCore.Qt.Unchecked:
+        for row in self.files_table.get_children():
+            if "unchecked" in self.files_table.item(row, "tags"):
                 continue
-            item = self.filesTable.item(row, 1)
-            name = item.text()
-
-            # qstring to string
+            name = self.files_table.item(row, "values")[0]
             input = os.path.join(indir, name)
             output = os.path.join(outdir, name)
 
@@ -149,128 +97,46 @@ class Window(QtWidgets.QDialog):
                 success = False
                 break
         if success:
-            QtWidgets.QMessageBox.information(
-                self, "Info", "Completed!", QtWidgets.QMessageBox.Ok
-            )
+            messagebox.showinfo("Info", "Completed!")
         else:
-            QtWidgets.QMessageBox.warning(
-                self,
-                "Error",
-                "Error while process: \n%s" % (msg),
-                QtWidgets.QMessageBox.Ok,
-            )
-
-        # cutwhite.batch_action(indir,outdir)
+            messagebox.showwarning("Error", f"Error while process: \n{msg}")
 
     def find(self):
-        self.filesTable.setRowCount(0)
+        self.files_table.delete(*self.files_table.get_children())
 
-        fileName = self.fileComboBox.currentText()
-        text = self.textComboBox.currentText()
-        path = self.directoryComboBox.currentText()
+        file_name = self.file_combobox.get()
+        text = self.text_combobox.get()
+        path = self.directory_combobox.get()
 
-        self.updateComboBox(self.fileComboBox)
-        self.updateComboBox(self.textComboBox)
-        self.updateComboBox(self.directoryComboBox)
+        if not file_name:
+            file_name = "*"
+        files = [f for f in os.listdir(path) if f.endswith(".pdf")]
 
-        self.currentDir = QtCore.QDir(path)
-        if not fileName:
-            fileName = "*"
-        files = self.currentDir.entryList(
-            [fileName], QtCore.QDir.Files | QtCore.QDir.NoSymLinks
-        )
+        self.show_files(files)
 
-        if text:
-            files = self.findFiles(files, text)
-        self.showFiles(files)
-
-    def findFiles(self, files, text):
-        progressDialog = QtWidgets.QProgressDialog(self)
-
-        progressDialog.setCancelButtonText("&Cancel")
-        progressDialog.setRange(0, files.count())
-        progressDialog.setWindowTitle("Find Files")
-
-        foundFiles = []
-
-        for i in range(files.count()):
-            progressDialog.setValue(i)
-            progressDialog.setLabelText(
-                "Searching file number %d of %d..." % (i, files.count())
-            )
-            QtWidgets.qApp.processEvents()
-
-            if progressDialog.wasCanceled():
-                break
-
-            inFile = QtCore.QFile(self.currentDir.absoluteFilePath(files[i]))
-
-        progressDialog.close()
-
-        return foundFiles
-
-    def showFiles(self, files):
+    def show_files(self, files):
         for fn in files:
-            file = QtCore.QFile(self.currentDir.absoluteFilePath(fn))
-            size = QtCore.QFileInfo(file).size()
+            size = os.path.getsize(fn)
+            self.files_table.insert("", "end", values=(fn, f"{size // 1024} KB"), tags=("checked",))
 
-            fileNameItem = QtWidgets.QTableWidgetItem(fn)
-            fileNameItem.setFlags(fileNameItem.flags() ^ QtCore.Qt.ItemIsEditable)
-            sizeItem = QtWidgets.QTableWidgetItem("%d KB" % (int((size + 1023) / 1024)))
-            sizeItem.setTextAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
-            sizeItem.setFlags(sizeItem.flags() ^ QtCore.Qt.ItemIsEditable)
+        self.files_found_label.config(text=f"{len(files)} file(s) found")
 
-            # a check item to choose the spec files
-            checkItem = QtWidgets.QTableWidgetItem()
-            checkItem.setCheckState(QtCore.Qt.Checked)
-            checkItem.setTextAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
+    def create_button(self, text, command):
+        return tk.Button(self, text=text, command=command)
 
-            row = self.filesTable.rowCount()
-            self.filesTable.insertRow(row)
-            self.filesTable.setItem(row, 0, checkItem)
-            self.filesTable.setItem(row, 1, fileNameItem)
-            self.filesTable.setItem(row, 2, sizeItem)
+    def create_combobox(self, text=""):
+        combobox = ttk.Combobox(self)
+        combobox.set(text)
+        return combobox
 
-        self.filesFoundLabel.setText(
-            "%d file(s) found (Double click on a file to open it)" % len(files)
-        )
-
-    def createButton(self, text, member):
-        button = QtWidgets.QPushButton(text)
-        button.clicked.connect(member)
-        return button
-
-    def createComboBox(self, text=""):
-        comboBox = QtWidgets.QComboBox()
-        comboBox.setEditable(True)
-        comboBox.addItem(text)
-        comboBox.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
-        )
-        return comboBox
-
-    def createFilesTable(self):
-        self.filesTable = QtWidgets.QTableWidget(0, 3)
-        self.filesTable.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
-        self.filesTable.setHorizontalHeaderLabels(("Choose", "File Name", "Size"))
-        # self.filesTable.horizontalHeader().setResizeMode(
-        #     1, QtWidgets.QHeaderView.Stretch)
-        self.filesTable.verticalHeader().hide()
-        self.filesTable.setShowGrid(False)
-
-        self.filesTable.cellActivated.connect(self.openFileOfItem)
-
-    def openFileOfItem(self, row, column):
-        item = self.filesTable.item(row, 0)
-
-        QtWidgets.QDesktopServices.openUrl(
-            QtCore.QUrl(self.currentDir.absoluteFilePath(item.text()))
-        )
+    def create_files_table(self):
+        self.files_table = ttk.Treeview(self, columns=("File Name", "Size"), show="headings")
+        self.files_table.heading("File Name", text="File Name")
+        self.files_table.heading("Size", text="Size")
+        self.files_table.tag_configure("checked", background="lightgreen")
+        self.files_table.tag_configure("unchecked", background="lightcoral")
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())
+    app = Window()
+    app.mainloop()
