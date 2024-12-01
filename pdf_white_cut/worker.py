@@ -145,7 +145,7 @@ def batch_cut_pdf(indir: Path, outdir: Path, ignore=0):
     logger.info("output dir: {}", outdir)
 
     # only get one layer of pdf files
-    files = [pdf.basename() for pdf in indir.listdir("*.pdf")]
+    files = [pdf.basename() for pdf in indir.files("*.pdf")]
     logger.info("pdf files in spec folder: {}", files)
 
     # guard dir
