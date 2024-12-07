@@ -1,10 +1,10 @@
 # required
-pypdf==3.17.0
+pypdf==5.1.0
 pdfminer.six
-loguru
+loguru==0.7.3
 path==17.0.0
 pytest
-PyMuPDF==1.24.9 # fitz
+PyMuPDF==1.25.0 # fitz
 
 # optional
 # PySide6==6.3.2
