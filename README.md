@@ -4,14 +4,12 @@
 
 While latex, it takes time to `cut the useless white part of pdf`, so here comes a tool for it.
 
----
-
+# 提示
 **这个文档已经够短了，请务必读一遍先。**
 
-> Please see [here](#mention) for english README.
+更新后，请重新安装依赖，以确保更新内容一致，`pip3 install -r requirements.txt`.
 
-# 提示
-请重新安装依赖，以确保更新内容一致，`pip3 install -r requirements.txt`.
+> Please see [here](#mention) for english README.
 
 # 特性
 工具可以对生成的 PDF 图表进行自动裁剪（示例如下），减少人工操作和其他软件依赖（如`Acrobat`）。
