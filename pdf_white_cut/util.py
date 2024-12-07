@@ -1,5 +1,4 @@
 import argparse
-from pdf_white_cut.logger import logger
 
 
 def get_parser():

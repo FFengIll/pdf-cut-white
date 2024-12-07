@@ -1,5 +1,5 @@
-from pypdf import PdfReader, PdfWriter
 import pytest
+from pypdf import PdfReader, PdfWriter
 
 
 @pytest.mark.skip()

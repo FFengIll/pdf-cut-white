@@ -3,7 +3,9 @@
 import sys
 from typing import List, Tuple
 
+import fitz  # PyMuPDF
 from path import Path
+from pdfminer import layout
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import (
     LAParams,
@@ -18,14 +20,11 @@ from pdfminer.layout import (
     LTTextBox,
     LTTextLine,
 )
-from pdfminer import layout
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage, PDFTextExtractionNotAllowed
 from pdfminer.pdfparser import PDFParser
-import fitz  # PyMuPDF
 
-from pdf_white_cut import worker
 from pdf_white_cut.logger import logger
 
 

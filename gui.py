@@ -11,7 +11,6 @@ import traceback
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel
 
 from pdf_white_cut import worker
 from pdf_white_cut.logger import logger
