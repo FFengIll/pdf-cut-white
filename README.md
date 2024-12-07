@@ -14,7 +14,9 @@ While latex, it takes time to `cut the useless white part of pdf`, so here comes
 请重新安装依赖，以确保更新内容一致，`pip3 install -r requirements.txt`.
 
 # 特性
-工具可以对生成的 PDF 图表进行自动裁剪，减少人工操作和其他软件依赖（如`Acrobat`）。
+工具可以对生成的 PDF 图表进行自动裁剪（示例如下），减少人工操作和其他软件依赖（如`Acrobat`）。
+
+![](./resource/demo.jpg)
 
 # 使用
 
