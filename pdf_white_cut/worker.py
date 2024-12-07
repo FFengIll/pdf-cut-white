@@ -87,33 +87,19 @@ def cut_pdf(source: Path, target: Path, ignore=0):
         # edit pdf by visible box and output it
         logger.info("input file: {}", source)
 
-        tmp = target + ".tmp"
-        logger.info("use tmp: {}", tmp)
-        rotates = []
-
-        # clear rotate
-        inpdf = fitz.open(str(source))
-        for page in inpdf:
-            rotates.append(page.rotation)
-            page.set_rotation(0)
-        inpdf.save(tmp, incremental=False)
-        inpdf.close()
-
         # MENTION: never move and change the sequence, since file IO.
         # analyses the visible box of each page, aka the box scale. res=[(x1,y1,x2,y2)]
         # analyses whole pdf at one time since it use `pdfminer` (not `pypdf`)
-        page_box_list = worker.extract_pdf_boxs(tmp, ignore=ignore)
+        page_box_list = extract_pdf_boxs(source, ignore=ignore)
 
-        inpdf = fitz.open(str(tmp))
+        inpdf = fitz.open(str(source))
 
-        for idx, page in enumerate(inpdf):
+        for idx, page in enumerate(inpdf.pages()):
             # scale is the max box of the page
             box = page_box_list[idx]
             logger.info("origin scale: {}", box)
 
             cut_page_box(page, box)
-
-            page.set_rotation(rotates[idx])
 
         logger.info("output to {}", Path(target))
 
@@ -281,6 +267,10 @@ def extract_pdf_boxs(filename, ignore=0):
     page_boxs = []
 
     for page in PDFPage.create_pages(document):
+        # the page may rotate, clear it to get the corresponding box
+        rotate = page.rotate
+        page.rotate = 0
+
         interpreter.process_page(page)
         # 接受该页面的LTPage对象
         layout = device.get_result()
