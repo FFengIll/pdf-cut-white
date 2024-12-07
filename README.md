@@ -114,7 +114,7 @@ Known limitation:
 
 ## Changelog
 
-- (bugfix/feat) support rotated pdf pages.
+- (bugfix & feat) support rotated pdf pages.
 - (refactor) less files, less function defines.
 - (dependency) bump to PySide6 for GUI with QT.
 - (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**).
