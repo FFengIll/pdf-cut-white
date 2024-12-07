@@ -93,7 +93,7 @@ Make sure you **REALLY** require `GUI`:
 
 ```sh
 # install PySide6, the official Qt for Python : )
-pip install PySide6==6.3.2
+pip install PySide6==6.8.1
 
 # if success, run 
 python gui.py
