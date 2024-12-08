@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import copy
 import sys
 from typing import List, Tuple
 
@@ -33,6 +34,7 @@ def cut_page_box(page: fitz.Page, visible_box: fitz.Rect):
     cut the box by setting new position (relative position)
     """
 
+    old_media_box = copy.deepcopy(page.mediabox)
     box = page.mediabox
     # MENTION: media box is a visible area of the pdf page
     logger.info("media box: {}", page.mediabox)
@@ -62,6 +64,17 @@ def cut_page_box(page: fitz.Page, visible_box: fitz.Rect):
 
     # Set the new MediaBox for the page
     page.set_mediabox(new_media_box)
+    #
+    # now we know if it changed
+    changed = old_media_box != new_media_box
+
+    logger.info(
+        "pdf bbox changed: {} ({} {})",
+        changed,
+        new_media_box,
+        old_media_box,
+    )
+    return changed
 
 
 def cut_pdf(source: Path, target: Path, ignore=0):
