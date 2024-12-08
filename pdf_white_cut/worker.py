@@ -102,6 +102,9 @@ def cut_pdf(source: Path, target: Path, ignore=0):
 
         logger.info("output to {}", Path(target))
 
+        # add some metadata
+        inpdf.metadata["producer"] = "pdf-cut-white"
+
         inpdf.save(target, incremental=False)
         inpdf.close()
 
