@@ -283,7 +283,6 @@ def extract_pdf_boxs(filename, ignore=0):
 
     for page in PDFPage.create_pages(document):
         # the page may rotate, clear it to get the corresponding box
-        rotate = page.rotate
         page.rotate = 0
 
         interpreter.process_page(page)
@@ -291,21 +290,27 @@ def extract_pdf_boxs(filename, ignore=0):
         layout = device.get_result()
         # 这里layout是一个LTPage对象 里面存放着 这个page解析出的各种对象
         # 一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
-        boxs = []
-        for item in layout:
-            box = extract_item_box(item)
-
-            # another process only for `LTRect` with `ignore`
-            if isinstance(item, LTRect):
-                logger.debug("rect:{}", item)
-                # FIXME: some pdf has a global LTRect, case by case
-                if ignore > 0:
-                    ignore -= 1
-                    continue
-            boxs.append(box)
+        boxs = extract_box_from_layout(layout, ignore)
 
         max_box = determine_max_box(boxs)
         page_boxs.append(max_box)
 
         logger.warning("max visible bbox for the page: {}", max_box)
+
     return page_boxs
+
+
+def extract_box_from_layout(layout, ignore):
+    boxs = []
+    for item in layout:
+        box = extract_item_box(item)
+
+        # another process only for `LTRect` with `ignore`
+        if isinstance(item, LTRect):
+            logger.debug("rect:{}", item)
+            # FIXME: some pdf has a global LTRect, case by case
+            if ignore > 0:
+                ignore -= 1
+                continue
+        boxs.append(box)
+    return boxs
