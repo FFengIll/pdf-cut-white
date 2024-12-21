@@ -132,15 +132,15 @@ class Window(QtWidgets.QDialog):
             checkitem = self.filesTable.item(row, 0)
             if checkitem.checkState() == QtCore.Qt.Unchecked:
                 continue
-            item = self.filesTable.item(row, 1)
-            name = item.text()
+            name = self.filesTable.item(row, 1).text()
+            ignore = QtWidgets.QSpinBox(self.filesTable.cellWidget(row, 3)).value()
 
             # qstring to string
             input = os.path.join(indir, name)
             output = os.path.join(outdir, name)
 
             try:
-                worker.cut_pdf(str(input), str(output))
+                worker.cut_pdf(str(input), str(output), ignore=int(ignore))
             except Exception as e:
                 print("error while cut white")
                 traceback.print_exc()
@@ -224,11 +224,18 @@ class Window(QtWidgets.QDialog):
             checkItem.setCheckState(QtCore.Qt.Checked)
             checkItem.setTextAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
 
+            # new ignore item
+            ignoreItem = QtWidgets.QSpinBox()
+            ignoreItem.setValue(0)
+            ignoreItem.stepType
+            # ignoreItem.setFlags(ignoreItem.flags() | QtCore.Qt.ItemIsEditable)
+
             row = self.filesTable.rowCount()
             self.filesTable.insertRow(row)
             self.filesTable.setItem(row, 0, checkItem)
             self.filesTable.setItem(row, 1, fileNameItem)
             self.filesTable.setItem(row, 2, sizeItem)
+            self.filesTable.setCellWidget(row, 3, ignoreItem)  # Added new column item
 
         self.filesFoundLabel.setText(
             "%d file(s) found (Double click on a file to open it)" % len(files)
@@ -249,13 +256,13 @@ class Window(QtWidgets.QDialog):
         return comboBox
 
     def createFilesTable(self):
-        self.filesTable = QtWidgets.QTableWidget(0, 3)
+        self.filesTable = QtWidgets.QTableWidget(0, 4)  # Updated column count to 4
         self.filesTable.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
-        self.filesTable.setHorizontalHeaderLabels(("Choose", "File Name", "Size"))
-        # self.filesTable.horizontalHeader().setResizeMode(
-        #     1, QtWidgets.QHeaderView.Stretch)
-        self.filesTable.verticalHeader().hide()
+        self.filesTable.setHorizontalHeaderLabels(
+            ("Choose", "File Name", "Size", "Ignore")
+        )  # Added new column header
+        # self.filesTable.verticalHeader().hide()
         self.filesTable.setShowGrid(False)
 
         self.filesTable.cellActivated.connect(self.openFileOfItem)
