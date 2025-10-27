@@ -1,101 +1,101 @@
 # pdf-cut-white
 
-在使用 Latex 书写论文时（或者其他时刻），花费了不少的时间处理 PDF 图表——`裁剪不必要的图表白边`。所幸就写个工具自动完成吧——自动化且精准。
+在使用 LaTeX 书写论文时（或其他场景），常常需要花费大量时间处理 PDF 图表——`裁剪不必要的图表白边`。所幸就写个自动化工具吧——精准高效地完成此任务。
 
-While latex, it takes time to `cut the useless white part of pdf`, so here comes a tool for it.
+When writing papers with LaTeX (or in other scenarios), significant time is often spent processing PDF figures and tables—`trimming unnecessary white margins`. To address this, I developed this automated tool designed to perform the task accurately and efficiently.
 
 # 提示
-**这个文档已经够短了，请务必读一遍先。**
+**本文档虽简短，但内容重要，请务必完整阅读。**
 
-更新后，请重新安装依赖，以确保更新内容一致，`pip3 install -r requirements.txt`.
+更新后，请重新安装依赖以确保内容一致：`pip3 install -r requirements.txt`。
 
-> Please see [here](#mention) for english README.
-
-# 特性
-工具可以对生成的 PDF 图表进行自动裁剪（示例如下），减少人工操作和其他软件依赖（如`Acrobat`）。
+> For English version, please refer to [here](#mention)。
 
 ![](./resource/demo.jpg)
 
+# 特性
+本工具可自动裁剪生成的 PDF 图表中的白边（效果如上图所示），减少人工干预及对其他软件（如 Adobe Acrobat）的依赖。
+
 # 使用
 
-请安装python3.8及以上版本，详见[Install](#install)。
+请安装 Python 3.8 或更高版本，具体安装方法详见[Install](#install)章节。
 
-推荐使用命令行版本，详见[CLI](#cli)。
+建议优先使用命令行版本，详细信息见[CLI](#cli)章节。
 
-CLI 流程说明：
-- 读取原始 PDF 文件中的每一页（实际上只会处理第一页，这里默认每个pdf是一个单页图表）
-- 按页识别 PDF 中的白边（基于 pdf item 分析）
-- 裁剪白边（本质上是通过缩减 media box 实现）
-- 输入无白边的新 PDF 文件
+CLI 工作流程说明：
+- 读取原始 PDF 文件的每一页（实际仅处理第一页，因默认每个 PDF 为单页图表）
+- 基于 PDF 元素分析识别页面中的白边
+- 裁剪白边（本质是通过缩减 MediaBox 实现）
+- 输出去除白边的新 PDF 文件
 
-若希望使用 GUI 版本，请确保能够成功安装 PySide6，详见[GUI](#gui)。
+如需使用图形界面版本，请确保能成功安装 PySide6，详情见[GUI](#gui)章节。
 
-GUI 流程说明：
-- 启用工具，选择输入文件夹和输出文件夹（必须使用不同的文件夹防止源文件覆盖）
-- 扫描 pdf 文件（GUI 支持在列表中二次选择 PDF）（注意：仅会扫描一级目录，而不会扫描子目录）
-- 确认无误后，点击完成 PDF 裁剪（仅选中的文件），并输出到输出文件夹下
+GUI 工作流程说明：
+- 启动工具，选择输入与输出文件夹（必须使用不同文件夹以防源文件被覆盖）
+- 扫描 PDF 文件（GUI 支持在列表中二次选择特定 PDF 文件）（注意：仅扫描一级目录，不递归扫描子目录）
+- 确认无误后，点击完成 PDF 裁剪（仅处理选中文件），结果输出至指定文件夹
 
 ## 注意事项
-部分 pdf 输出会在最外围加上 RT 元素，导致无法裁剪，这时候可以添加`--ignore 1`参数，再做尝试。
+部分 PDF 输出可能在外围包含 RT 元素，导致无法正常裁剪。此时可尝试添加 `--ignore 1` 参数。
 
-请优先不带`ignore`尝试，有问题再带参数，人工检查一遍即可，这种情况也相对有有限（取决于绘图工具）。
+建议优先不使用 `ignore` 参数进行尝试，若出现问题再启用该参数，并进行人工核查。此类情况相对较少，主要取决于原始绘图工具。
 
-> 发现任何问题，请参看`issue`，若仍无法解决，请提新`issue`（请`--verbose`执行附带 log）（若可以，请提交对应的 case.pdf）。
+> 如遇任何问题，请先查阅现有 `issue`，若仍无法解决，请提交新 `issue`（请附带 `--verbose` 执行日志）。若条件允许，请提供问题案例文件（case.pdf）。
 
 # 其他
 
-已知部分限制：
+已知限制：
 
-- 只扫描一级目录，不支持递归。
-  - 可以有效防止错误操作而产生大量的文件 IO。
-  - 工具已实现自动化，以一级目录为单位也足够使用。
-  - 同理，禁止对同目录/同文件进行操作。
-- 对于原始 PDF 文件可以妥善完成裁剪，但如果是其他工具编辑（特别是裁剪）过的 PDF，再次裁剪则可能输出错误。
-  - 因为该工具通过修正 PDF 中的 media box 实现裁剪，可能与其他工具不兼容。
-- 偶尔会出现裁剪过度精细的情况，待修正。
-  - 本质上，白边就是无内容的部分，因此工具会统计所有有含义的部分（如 textbox，image 等），并计算最大的有效坐标范围，这一范围以外的部分即视为白边。
-- 有部分元素未处理
-  - 可以参看`pdf_white_cut/worker.py::extract_pdf_boxs`，部分元素使用了原始的 bbox，可能导致结果保留的内容（白边）过多，对此请 issue 反馈，并附带用例和 log。
+- 仅扫描一级目录，不支持递归扫描。
+  - 可有效避免误操作导致的大规模文件 I/O。
+  - 工具已实现自动化，以一级目录为单位处理已足够满足需求。
+  - 出于安全考虑，禁止对同一目录或同名文件进行操作。
+- 对于原始 PDF 文件可妥善完成裁剪，但若 PDF 曾被其他工具编辑过（特别是裁剪过），再次裁剪可能产生错误输出。
+  - 因本工具通过修正 PDF 的 MediaBox 实现裁剪，可能与其他工具的处理方式不兼容。
+- 偶尔可能出现裁剪过度精细的情况，正在优化中。
+  - 本质上，白边指无内容区域，工具会统计所有有意义元素（如文本框、图像等）并计算最大有效坐标范围，该范围外的部分即视为白边。
+- 部分元素尚未完全处理
+  - 可参考 `pdf_white_cut/worker.py::extract_pdf_boxs`，部分元素使用了原始边界框（bbox），可能导致保留的白边过多。如有此类问题，请提交 issue 并附带测试用例和日志。
 
 
 # Mention
 
-Please redo `pip3 install -r requirements.txt` since dependencies changed (see [changelog](#Changelog) ).
+Please reinstall dependencies after updates to ensure consistency: `pip3 install -r requirements.txt` (refer to [changelog](#Changelog) for details).
 
 # Feature
 
-Automatic cut the useless white part of pdf. This pdf must be a single page of table or figure.
+Automatically removes unnecessary white margins from PDFs. The input PDF should be a single-page figure or table.
 
 # Usage
 
 ## Install
 
-- install `python3` (python 3.8 or above)
-- install dependency: `pip3 install -r requirements.txt` or `pip3 install -r requirements.txt --user`
+- Install Python 3 (version 3.8 or above)
+- Install dependencies: `pip3 install -r requirements.txt` or `pip3 install -r requirements.txt --user`
 
 ## CLI
 
-Recommend to use `CLI (command line tool)`:
+Recommended to use the command-line interface:
 
 ```sh
-# cut single pdf
+# Cut single PDF
 python cli.py -i in.pdf -o out.pdf
 
-# cut all pdf files under a folder
+# Process all PDFs in a folder
 python cli.py -id infolder -od outfolder
 ```
 
-> MENTION: sometimes add `--ignore 1` if output is not the wanted.
+> Note: Add `--ignore 1` parameter if the output is not as expected.
 
 ## GUI
 
-Make sure you **REALLY** require `GUI`:
+Ensure GUI is truly needed:
 
 ```sh
-# install PySide6, the official Qt for Python : )
+# Install PySide6, the official Qt for Python
 pip install PySide6==6.8.1
 
-# if success, run 
+# If installation succeeds, run
 python gui.py
 ```
 
@@ -104,31 +104,31 @@ python gui.py
 
 ## Limitation
 
-Known limitation:
+Known limitations:
 
-- Only scan one level folder
-- Some pdf with edit may cause failure (TODO: it is it is `NotImplemented` logic)
-- Support single page pdf, but may not support well for multiple pages (try it first)
-- Some cases with too many white part may cause failure (TODO: it is `NotImplemented` logic)
-  - see `pdf_white_cut/worker.py::extract_pdf_boxs`
+- Only scans top-level directory (no recursion)
+- May fail for PDFs previously edited by other tools (TODO: implement proper handling)
+- Primarily supports single-page PDFs; multi-page support may be limited (please test first)
+- May fail in cases with excessive white space (TODO: implement proper handling)
+  - See `pdf_white_cut/worker.py::extract_pdf_boxs`
 
 ## Changelog
 
-- (bugfix & feat) support rotated pdf pages.
-- (refactor) less files, less function defines.
-- (dependency) bump to PySide6 for GUI with QT.
-- (dependency) use `pdfminer.six` (a community fork) (since `pdfminer` is **not actively maintained**).
-- (bugfix) missing `LTFigure` analysis.
-- (bugfix) path process error in batch_cut_pdf.
-- (bugfix) missing `LTTextBox` or `LTTextLine` analysis.
-- (feature) GUI base on PySide2 (the official).
-- (bugfix) failed for pdf which has been edited before - not fix the pos for the edited (pdfminer use relative pos).
-- (feature) CLI using argparse.
+- (bugfix & feat) Added support for rotated PDF pages
+- (refactor) Reduced number of files and function definitions
+- (dependency) Upgraded to PySide6 for GUI with QT
+- (dependency) Switched to `pdfminer.six` (community-maintained fork, as original `pdfminer` is no longer actively maintained)
+- (bugfix) Added missing `LTFigure` analysis
+- (bugfix) Fixed path processing error in `batch_cut_pdf`
+- (bugfix) Added missing `LTTextBox` or `LTTextLine` analysis
+- (feature) Implemented GUI based on PySide2 (official)
+- (bugfix) Fixed issues with previously edited PDFs (addressed pdfminer's relative position handling)
+- (feature) Implemented CLI using argparse
 
 ## Dependency
 
-- PyMuPDF: it is fitz which do well in pdf IO
-- pypdf: a pure python module for pdf (upgrade of PyPDF2)
-- pdfminer.six: scan pdf elements
-- PySide6: optional for GUI only
-- loguru: for log only
+- PyMuPDF: Used as `fitz`, excels at PDF I/O operations
+- pypdf: Pure Python library for PDF processing (successor to PyPDF2)
+- pdfminer.six: Community-maintained fork for scanning PDF elements
+- PySide6: Optional, required only for GUI functionality
+- loguru: Logging library
