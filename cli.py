@@ -1,6 +1,6 @@
 import sys
 
-from pdf_white_cut.logger import logger
+from pdf_white_cut.logger import add_file_log, logger
 from pdf_white_cut.util import get_parser
 from pdf_white_cut.worker import batch_cut_pdf, cut_pdf
 
@@ -10,6 +10,7 @@ if __name__ == "__main__":
     if args.verbose:
         logger.remove()
         logger.add(sys.stderr, level="DEBUG")
+        add_file_log()
 
     try:
         if args.input and args.output:
