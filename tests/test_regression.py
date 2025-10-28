@@ -68,7 +68,7 @@ def check_case(case: Case):
 
 def file_hash(filepath, hash_func=hashlib.md5):
     hasher = hash_func()
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):  # 逐块读取
             hasher.update(chunk)
     return hasher.hexdigest()
