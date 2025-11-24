@@ -28,6 +28,22 @@ CLI 工作流程说明：
 - 裁剪白边（本质是通过缩减 MediaBox 实现）
 - 输出去除白边的新 PDF 文件
 
+## CLI 使用方法
+
+```bash
+# 裁剪单个 PDF 文件
+python cli.py -i input.pdf -o output.pdf
+
+# 裁剪单个 PDF 文件到指定目录（自动生成输出文件名）
+python cli.py -i input.pdf -o ./output_folder/
+
+# 批量处理文件夹中的所有 PDF 文件
+python cli.py -i ./input_folder/ -o ./output_folder/
+
+# 带参数的使用
+python cli.py -i input.pdf -o output.pdf --ignore 1 --verbose
+```
+
 如需使用图形界面版本，请确保能成功安装 PySide6，详情见[GUI](#gui)章节。
 
 GUI 工作流程说明：
@@ -81,8 +97,14 @@ Recommended to use the command-line interface:
 # Cut single PDF
 python cli.py -i in.pdf -o out.pdf
 
+# Cut single PDF to directory (auto-generates output filename)
+python cli.py -i in.pdf -o ./output_folder/
+
 # Process all PDFs in a folder
-python cli.py -id infolder -od outfolder
+python cli.py -i ./infolder/ -o ./outfolder/
+
+# With options
+python cli.py -i input.pdf -o output.pdf --ignore 1 --verbose
 ```
 
 > Note: Add `--ignore 1` parameter if the output is not as expected.
