@@ -82,10 +82,10 @@ def cut_pdf(source: Path, target: Path, ignore=0):
     edit to cut the white slide of the input pdf file, and output a new pdf file.
     """
     # guard type
-    source = Path(source)
-    target = Path(target)
+    source = Path(source).absolute()
+    target = Path(target).absolute()
 
-    if source == target:
+    if source.samefile(target):
         logger.error("{} {}", source, target)
         raise Exception("input and output can not be the same!")
 
