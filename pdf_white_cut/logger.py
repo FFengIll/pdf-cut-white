@@ -8,7 +8,7 @@ default_log_dir = Path("logs")
 default_log_dir.mkdir(exist_ok=True)
 
 # Get log level from environment variable, default to INFO
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+LOG_LEVEL = os.getenv("LOG_LEVEL", "WARNING").upper()
 
 # Console log level (can be overridden by LOG_LEVEL env var)
 CONSOLE_LOG_LEVEL = os.getenv("CONSOLE_LOG_LEVEL", LOG_LEVEL)
