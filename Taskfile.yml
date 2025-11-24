@@ -1,0 +1,25 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  test:
+    cmds:
+      - pytest tests/
+
+  regression:
+    cmds:
+      - python cli.py -i cases/input/input.pdf -o output/output.pdf 
+      - python cli.py -i cases/input/non_exist.pdf -o output/output.pdf 
+
+  demo:
+    cmds:
+      - python cli.py -i cases/bugfix/rotate/encoder_elab.pdf -o output/
