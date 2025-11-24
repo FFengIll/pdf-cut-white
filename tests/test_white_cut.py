@@ -6,7 +6,7 @@ from pypdf import PdfReader, PdfWriter
 
 sys.path.append(".")
 
-from pdf_white_cut.worker import batch_cut_pdf, cut_pdf, extract_pdf_boxs
+from pdf_white_cut.worker import batch_cut_pdf_white, cut_pdf_white, extract_pdf_boxs
 
 logger = loguru.logger
 
@@ -14,13 +14,13 @@ logger = loguru.logger
 def test_cut_pdf():
     inputfile = "./cases/input/input.pdf"
     outputfile = "./cases/output/output.pdf"
-    cut_pdf(inputfile, outputfile)
+    cut_pdf_white(inputfile, outputfile)
 
 
 def test_batch_cut_pdf():
     outdir = "./cases/output"
     indir = "./cases/input"
-    batch_cut_pdf(indir, outdir)
+    batch_cut_pdf_white(indir, outdir)
 
 
 @pytest.mark.skip()

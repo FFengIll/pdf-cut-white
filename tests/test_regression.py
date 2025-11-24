@@ -6,10 +6,13 @@ from path import Path
 sys.path.insert(0, ".")
 
 from pdf_white_cut.logger import logger
-from pdf_white_cut.worker import cut_pdf
+from pdf_white_cut.worker import cut_pdf_white
 
 logger.remove()
 logger.add(sys.stderr, level="DEBUG")
+
+
+def test_hello(): ...
 
 
 class Case:
@@ -44,7 +47,7 @@ def test_regression() -> None:
         Case("cases/bugfix/only_left_bottom.pdf", 0),
     ]
     for case in cases:
-        cut_pdf(case.input_path, case.output_path, case.ignore)
+        cut_pdf_white(case.input_path, case.output_path, case.ignore)
 
 
 def test_bugfix_cut_again() -> None:
@@ -55,7 +58,7 @@ def test_bugfix_cut_again() -> None:
         Case("output/cases/bugfix/no_literal.pdf"),
     ]
     for case in cases:
-        cut_pdf(case.input_path, case.output_path, case.ignore)
+        cut_pdf_white(case.input_path, case.output_path, case.ignore)
 
 
 def check_case(case: Case):
@@ -79,5 +82,5 @@ def test_bugfix_rotate() -> None:
     cases = [Case(i) for i in base.files("*.pdf")]
 
     for case in cases:
-        cut_pdf(case.input_path, case.output_path, case.ignore)
+        cut_pdf_white(case.input_path, case.output_path, case.ignore)
         check_case(case)

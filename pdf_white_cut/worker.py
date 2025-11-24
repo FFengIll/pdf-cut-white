@@ -29,7 +29,7 @@ from pdfminer.pdfparser import PDFParser
 from pdf_white_cut.logger import logger
 
 
-def cut_page_box(page: fitz.Page, visible_box: fitz.Rect):
+def cut_page_white(page: fitz.Page, visible_box: fitz.Rect):
     """
     cut the box by setting new position (relative position)
     """
@@ -77,7 +77,7 @@ def cut_page_box(page: fitz.Page, visible_box: fitz.Rect):
     return changed
 
 
-def cut_pdf(source: Path, target: Path, ignore=0):
+def cut_pdf_white(source: Path, target: Path, ignore=0):
     """
     edit to cut the white slide of the input pdf file, and output a new pdf file.
     """
@@ -111,7 +111,7 @@ def cut_pdf(source: Path, target: Path, ignore=0):
             box = page_box_list[idx]
             logger.info("origin scale: {}", box)
 
-            cut_page_box(page, box)
+            cut_page_white(page, box)
 
         logger.info("output to {}", Path(target))
 
@@ -131,12 +131,12 @@ def cut_pdf(source: Path, target: Path, ignore=0):
         raise e
 
 
-def batch_cut_pdf(indir: Path, outdir: Path, ignore=0):
+def batch_cut_pdf_white(indir: Path, outdir: Path, ignore=0):
     # guard type
-    indir = Path(indir)
-    outdir = Path(outdir)
+    indir = Path(indir).absolute()
+    outdir = Path(outdir).absolute()
 
-    if indir.absolute() == outdir.absolute():
+    if indir.samefile(outdir):
         raise Exception("input and output can not be the same!")
 
     # make dir if possible for output
@@ -156,10 +156,23 @@ def batch_cut_pdf(indir: Path, outdir: Path, ignore=0):
         source = Path.joinpath(indir, item)
         target = Path.joinpath(outdir, item)
         logger.info("{} {} ", source, target)
-        cut_pdf(source, target, ignore=ignore)
+        cut_pdf_white(source, target, ignore=ignore)
 
 
-def determine_max_box(boxs: List) -> Tuple:
+def merge_boxs(boxs: List) -> Tuple:
+    """
+    Merge multiple bounding boxes into a single bounding box that encompasses all of them.
+
+    Args:
+        boxs (List): A list of bounding boxes, where each box should be a sequence
+                    of 4 numbers representing [x1, y1, x2, y2] coordinates.
+                    None values in the list are ignored.
+
+    Returns:
+        Tuple: A tuple of 4 numbers representing the merged bounding box
+               [min_x, min_y, max_x, max_y] that encompasses all input boxes.
+               Returns extreme values if the input list is empty or contains only None.
+    """
     down_left = [sys.maxsize, sys.maxsize]
     upper_right = [
         -sys.maxsize,
@@ -176,75 +189,73 @@ def determine_max_box(boxs: List) -> Tuple:
     return tuple(down_left) + tuple(upper_right)
 
 
-def extract_item_box(item):
+def extract_element_box(elem):
     """
     this is the core process logic for the tool
     which analyse all items in pdf type by type.
     """
     # no bbox for LTAnno
-    if isinstance(item, LTAnno):
+    if isinstance(elem, LTAnno):
         return None
 
     # use bbox as default area
-    bbox = item.bbox
+    bbox = elem.bbox
 
-    if isinstance(item, LTLine):
-        logger.debug("use itself: {}", item)
-    elif isinstance(item, LTRect):
-        logger.debug("use itself: {}", item)
-    elif isinstance(item, LTCurve):
-        logger.debug("use itself: {}", item)
-    elif isinstance(item, LTTextBox):
-        if isinstance(item, layout.LTTextBoxHorizontal):
-            ...
-            logger.warning("LTTextBoxHorizontal: {}", item)
-        elif isinstance(item, layout.LTTextBoxVertical):
-            ...
-            logger.warning("LTTextBoxVertical: {}", item)
+    if isinstance(elem, LTLine):
+        logger.debug("use itself: {}", elem)
+    elif isinstance(elem, LTRect):
+        logger.debug("use itself: {}", elem)
+    elif isinstance(elem, LTCurve):
+        logger.debug("use itself: {}", elem)
+    elif isinstance(elem, LTTextBox):
+        if isinstance(elem, layout.LTTextBoxHorizontal):
+            logger.debug("LTTextBoxHorizontal as it is: {}", elem)
+        elif isinstance(elem, layout.LTTextBoxVertical):
+            logger.debug("LTTextBoxVertical as it is: {}", elem)
         else:
-            logger.warning("use itself since NotImplemented: {}", item)
-    elif isinstance(item, LTTextLine):
+            logger.warning("use itself since NotImplemented: {}", elem)
+    elif isinstance(elem, LTTextLine):
         # there is 2 types of `LTTextLine`: horizontal and vertical
-        text = item.get_text().encode("unicode_escape")
-        logger.debug("analyse LTTextLine: {} {}", item, text)
+        text = elem.get_text().encode("unicode_escape")
+        logger.debug("analyse LTTextLine: {} {}", elem, text)
         # TODO: here we ignored fonts and text line direction, may error in some cases
         # since the text has a height on y-axis, or has a width on x-axis,
         # we must modify it to make the whole text visible
         # FIXME: now we use `half` for upper and lower, may not right but work
         bbox = (
-            bbox[0] - item.width / 2,
-            bbox[1] - item.height / 2,
-            bbox[2] + item.width / 2,
-            bbox[3] + item.height / 2,
+            bbox[0] - elem.width / 2,
+            bbox[1] - elem.height / 2,
+            bbox[2] + elem.width / 2,
+            bbox[3] + elem.height / 2,
         )
         return bbox
 
         # might check chart one by one
         # children_bbox = [extract_box(ch) for ch in item]
         # return get_max_box(children_bbox)
-    elif isinstance(item, LTChar):
-        text = item.get_text().encode("unicode_escape")
-        logger.debug("analyse LTChar: {} {}", item, text)
+    elif isinstance(elem, LTChar):
+        text = elem.get_text().encode("unicode_escape")
+        logger.debug("analyse LTChar: {} {}", elem, text)
         bbox = (
-            bbox[0] - item.width / 2,
-            bbox[1] - item.height / 2,
-            bbox[2] + item.width / 2,
-            bbox[3] + item.height / 2,
+            bbox[0] - elem.width / 2,
+            bbox[1] - elem.height / 2,
+            bbox[2] + elem.width / 2,
+            bbox[3] + elem.height / 2,
         )
-    elif isinstance(item, LTImage):
-        logger.warning("use itself since NotImplemented: {}", item)
-    elif isinstance(item, LTFigure):
-        logger.debug("analyse LTFigure:{}", item)
+    elif isinstance(elem, LTImage):
+        logger.warning("use itself since NotImplemented: {}", elem)
+    elif isinstance(elem, LTFigure):
+        logger.debug("analyse LTFigure:{}", elem)
         # for `LTFigure`, the bbox is modified in `PDFMiner`
         # we should use the content item inside it to calculate real result
         try:
             children_bbox = []
             # _objs is the original items, of course, only one item for `LTFigure`
-            for subfigure in item:
+            for subfigure in elem:
                 # get all the item inside the figure
                 if isinstance(subfigure, LTContainer):
-                    children_bbox = [extract_item_box(item) for item in subfigure]
-                    return determine_max_box(children_bbox)
+                    children_bbox = [extract_element_box(item) for item in subfigure]
+                    return merge_boxs(children_bbox)
                 break
         except Exception as e:
             logger.error("use default for error since no processor: {}", e)
@@ -290,9 +301,9 @@ def extract_pdf_boxs(filename, ignore=0):
         layout = device.get_result()
         # 这里layout是一个LTPage对象 里面存放着 这个page解析出的各种对象
         # 一般包括LTTextBox, LTFigure, LTImage, LTTextBoxHorizontal 等等
-        boxs = extract_box_from_layout(layout, ignore)
+        boxs = extract_layout_boxs(layout, ignore)
 
-        max_box = determine_max_box(boxs)
+        max_box = merge_boxs(boxs)
         page_boxs.append(max_box)
 
         logger.warning("max visible bbox for the page: {}", max_box)
@@ -300,10 +311,10 @@ def extract_pdf_boxs(filename, ignore=0):
     return page_boxs
 
 
-def extract_box_from_layout(layout, ignore):
+def extract_layout_boxs(layout, ignore):
     boxs = []
     for item in layout:
-        box = extract_item_box(item)
+        box = extract_element_box(item)
 
         # another process only for `LTRect` with `ignore`
         if isinstance(item, LTRect):
